@@ -20,7 +20,7 @@
             💡 <b>隱私說明</b>：本工具所輸入的成績僅儲存於您的手機裝置中，分享網址不會洩漏或共用個人分數，請安心使用！
         </div>
 
-        <!-- 功能模式切換 (成績紀錄本 vs 成績計算機 vs 成績總表) -->
+        <!-- 功能模式切換 -->
         <div class="flex rounded-xl bg-slate-100 p-1 mb-6 border border-slate-200">
             <button id="mode-book-btn" onclick="switchMode('book')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm">📖 紀錄本</button>
             <button id="mode-calc-btn" onclick="switchMode('calc')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900">🧮 計算機</button>
@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- ==================== 模式三：成績總表 ==================== -->
+        <!-- ==================== 模式三：成績總表 (重新編排版) ==================== -->
         <div id="mode-summary-view" class="hidden">
             <div class="mb-4">
                 <h2 class="text-sm font-bold text-slate-700">📋 個人三年成績總覽</h2>
@@ -505,7 +505,7 @@
             calculate();
         }
 
-        // --- 成績總表邏輯 (優化排版與補齊區女排) ---
+        // --- 成績總表邏輯 (全新清晰卡片編排) ---
         function renderSummaryTable() {
             const container = document.getElementById('summary-container');
             container.innerHTML = '';
@@ -548,48 +548,50 @@
 
                             if (isMock) {
                                 let rankArr = [];
-                                if (data.mockClassRank) rankArr.push(`班:${data.mockClassRank}`);
-                                if (data.mockSchoolRank) rankArr.push(`校:${data.mockSchoolRank}`);
-                                if (data.mockDistrictRank) rankArr.push(`區:${data.mockDistrictRank}`);
-                                if (data.mockDistrictFemaleRank) rankArr.push(`區女:${data.mockDistrictFemaleRank}`);
+                                if (data.mockClassRank) rankArr.push(`班排名:${data.mockClassRank}`);
+                                if (data.mockSchoolRank) rankArr.push(`校排名:${data.mockSchoolRank}`);
+                                if (data.mockDistrictRank) rankArr.push(`區排名:${data.mockDistrictRank}`);
+                                if (data.mockDistrictFemaleRank) rankArr.push(`區(女)排名:${data.mockDistrictFemaleRank}`);
                                 if (rankArr.length > 0) {
-                                    ranksHtml = `<div class="text-[11px] text-slate-500 font-medium mt-0.5">排名：${rankArr.join(' ')}</div>`;
+                                    ranksHtml = `<div class="text-xs text-slate-600 font-medium mt-1">${rankArr.join(' | ')}</div>`;
                                 }
                             } else {
                                 let rankArr = [];
-                                if (data.classRank) rankArr.push(`班:${data.classRank}`);
-                                if (data.schoolRank) rankArr.push(`校:${data.schoolRank}`);
+                                if (data.classRank) rankArr.push(`班排名:${data.classRank}`);
+                                if (data.schoolRank) rankArr.push(`校排名:${data.schoolRank}`);
                                 if (rankArr.length > 0) {
-                                    ranksHtml = `<div class="text-[11px] text-slate-500 font-medium mt-0.5">排名：${rankArr.join(' ')}</div>`;
+                                    ranksHtml = `<div class="text-xs text-slate-600 font-medium mt-1">${rankArr.join(' | ')}</div>`;
                                 }
                             }
                         }
 
                         const card = document.createElement('div');
-                        card.className = "bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between shadow-xs";
+                        card.className = "bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-xs";
 
                         let scoreInfo = "";
                         if (!hasData) {
-                            scoreInfo = `<span class="text-slate-400 italic text-xs">尚未輸入</span>`;
+                            scoreInfo = `<span class="text-slate-400 italic text-xs">尚未輸入成績</span>`;
                         } else if (isMock) {
-                            scoreInfo = `<div class="text-amber-600 font-black text-sm">${totalPoints.toFixed(1)} 積分</div>`;
+                            scoreInfo = `<div class="text-amber-600 font-black text-lg">${totalPoints.toFixed(1)} <span class="text-xs font-bold text-amber-700">積分</span></div>`;
                         } else {
                             const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
                             scoreInfo = `
-                                <div class="text-blue-600 font-black text-sm">${totalScore.toFixed(1)} 分</div>
-                                <div class="text-slate-500 text-[11px]">平均 ${avg}</div>
+                                <div class="text-blue-600 font-black text-lg">${totalScore.toFixed(1)} <span class="text-xs font-bold text-blue-700">分</span></div>
+                                <div class="text-slate-500 text-xs font-semibold">加權平均 ${avg}</div>
                             `;
                         }
 
                         card.innerHTML = `
-                            <div>
-                                <div class="text-xs font-bold text-slate-800">${grade} · ${sem}</div>
-                                <div class="text-sm font-extrabold text-slate-900">${exam}</div>
-                                ${ranksHtml}
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-1">${grade} · ${sem}</span>
+                                    <div class="text-base font-black text-slate-900">${exam}</div>
+                                </div>
+                                <div class="text-right">
+                                    ${scoreInfo}
+                                </div>
                             </div>
-                            <div class="text-right">
-                                ${scoreInfo}
-                            </div>
+                            ${hasData && ranksHtml ? `<div class="mt-2 pt-2 border-t border-slate-200">${ranksHtml}</div>` : ''}
                         `;
                         container.appendChild(card);
                     });
