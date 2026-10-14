@@ -287,4 +287,201 @@
                 if(exam === currentExam) {
                     btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm";
                 } else {
-                    btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200
+                    btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                }
+                container.appendChild(btn);
+            });
+
+            const isMock = currentExam.includes("模考");
+            const rankContainer1 = document.getElementById('rank-container-1');
+            const rankContainer2 = document.getElementById('rank-container-2');
+            if (isMock) {
+                rankContainer1.classList.add('hidden');
+                rankContainer2.classList.remove('hidden');
+            } else {
+                rankContainer1.classList.remove('hidden');
+                rankContainer2.classList.add('hidden');
+            }
+        }
+
+        function renderSubjects() {
+            const container = document.getElementById('subjects-container');
+            container.innerHTML = '';
+
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+
+            subjectsList.forEach((sub, idx) => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100";
+                
+                const label = document.createElement('span');
+                label.className = "text-sm font-medium text-slate-700";
+                label.innerText = isMock ? sub.name : `${sub.name} (x${sub.weight})`;
+                row.appendChild(label);
+
+                if (isMock) {
+                    const select = document.createElement('select');
+                    select.id = `sub-${idx}`;
+                    select.className = "bg-white border border-slate-300 text-slate-800 text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-500 font-medium";
+                    select.onchange = saveDataAndCalculate;
+                    
+                    const defaultOpt = document.createElement('option');
+                    defaultOpt.value = "";
+                    defaultOpt.innerText = sub.isComposition ? "請選擇級分" : "請選擇等第";
+                    defaultOpt.disabled = true;
+                    defaultOpt.selected = true;
+                    select.appendChild(defaultOpt);
+
+                    if (sub.isComposition) {
+                        Object.keys(compositionPoints).forEach(comp => {
+                            const opt = document.createElement('option');
+                            opt.value = comp;
+                            opt.innerText = `${comp} (${compositionPoints[comp]}分)`;
+                            select.appendChild(opt);
+                        });
+                    } else {
+                        Object.keys(rankPoints).forEach(rank => {
+                            const opt = document.createElement('option');
+                            opt.value = rank;
+                            opt.innerText = `${rank} (${rankPoints[rank]}分)`;
+                            select.appendChild(opt);
+                        });
+                    }
+                    row.appendChild(select);
+                } else {
+                    const input = document.createElement('input');
+                    input.type = "number";
+                    input.id = `sub-${idx}`;
+                    input.placeholder = "請輸入";
+                    input.className = "w-28 bg-white border border-slate-300 text-right px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-blue-500";
+                    input.oninput = saveDataAndCalculate;
+                    row.appendChild(input);
+                }
+
+                container.appendChild(row);
+            });
+        }
+
+        function saveDataAndCalculate() {
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+            
+            let data = { 
+                scores: {}, 
+                classRank: document.getElementById('class-rank').value, 
+                schoolRank: document.getElementById('school-rank').value,
+                mockClassRank: document.getElementById('mock-class-rank').value,
+                mockClassTotal: document.getElementById('mock-class-total').value,
+                mockSchoolRank: document.getElementById('mock-school-rank').value,
+                mockSchoolTotal: document.getElementById('mock-school-total').value,
+                mockDistrictRank: document.getElementById('mock-district-rank').value,
+                mockDistrictTotal: document.getElementById('mock-district-total').value,
+                mockDistrictFemaleRank: document.getElementById('mock-district-female-rank').value,
+                mockDistrictFemaleTotal: document.getElementById('mock-district-female-total').value
+            };
+
+            subjectsList.forEach((sub, idx) => {
+                const val = document.getElementById(`sub-${idx}`).value;
+                data.scores[idx] = val;
+            });
+
+            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`, JSON.stringify(data));
+            calculate();
+        }
+
+        function calculate() {
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+
+            let totalScore = 0;
+            let totalWeight = 0;
+            let totalPoints = 0;
+
+            subjectsList.forEach((sub, idx) => {
+                const val = document.getElementById(`sub-${idx}`).value;
+                if (isMock) {
+                    if (sub.isComposition) {
+                        if (val && compositionPoints[val] !== undefined) {
+                            totalPoints += compositionPoints[val];
+                        }
+                    } else {
+                        if (val && rankPoints[val] !== undefined) {
+                            totalPoints += rankPoints[val];
+                        }
+                    }
+                } else {
+                    const score = parseFloat(val);
+                    if (!isNaN(score)) {
+                        totalScore += score * sub.weight;
+                        totalWeight += sub.weight;
+                    }
+                }
+            });
+
+            const resultTitle = document.getElementById('result-title');
+            const scoreDisplay = document.getElementById('score-display');
+            const subDisplay = document.getElementById('sub-display');
+
+            if (isMock) {
+                resultTitle.innerText = "模考總積分計算結果";
+                scoreDisplay.innerText = `${totalPoints.toFixed(1)} 積分`;
+                subDisplay.innerHTML = `採計科目： <span class="font-bold text-white">5科 + 作文</span>`;
+            } else {
+                resultTitle.innerText = "加權計算結果";
+                const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
+                scoreDisplay.innerText = `${totalScore.toFixed(1)} 分`;
+                subDisplay.innerHTML = `加權平均： <span class="font-bold text-white">${avg}</span> 分`;
+            }
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`);
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+
+            if (saved) {
+                const data = JSON.parse(saved);
+                subjectsList.forEach((sub, idx) => {
+                    const el = document.getElementById(`sub-${idx}`);
+                    if (el && data.scores && data.scores[idx] !== undefined) {
+                        el.value = data.scores[idx];
+                    }
+                });
+                document.getElementById('class-rank').value = data.classRank || '';
+                document.getElementById('school-rank').value = data.schoolRank || '';
+                document.getElementById('mock-class-rank').value = data.mockClassRank || '';
+                document.getElementById('mock-class-total').value = data.mockClassTotal || '';
+                document.getElementById('mock-school-rank').value = data.mockSchoolRank || '';
+                document.getElementById('mock-school-total').value = data.mockSchoolTotal || '';
+                document.getElementById('mock-district-rank').value = data.mockDistrictRank || '';
+                document.getElementById('mock-district-total').value = data.mockDistrictTotal || '';
+                document.getElementById('mock-district-female-rank').value = data.mockDistrictFemaleRank || '';
+                document.getElementById('mock-district-female-total').value = data.mockDistrictFemaleTotal || '';
+            } else {
+                subjectsList.forEach((sub, idx) => {
+                    const el = document.getElementById(`sub-${idx}`);
+                    if (el) el.value = "";
+                });
+                document.getElementById('class-rank').value = '';
+                document.getElementById('school-rank').value = '';
+                document.getElementById('mock-class-rank').value = '';
+                document.getElementById('mock-class-total').value = '';
+                document.getElementById('mock-school-rank').value = '';
+                document.getElementById('mock-school-total').value = '';
+                document.getElementById('mock-district-rank').value = '';
+                document.getElementById('mock-district-total').value = '';
+                document.getElementById('mock-district-female-rank').value = '';
+                document.getElementById('mock-district-female-total').value = '';
+            }
+            calculate();
+        }
+
+        ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
+            document.getElementById(id).addEventListener('input', saveDataAndCalculate);
+        });
+
+        setGrade("初一");
+    </script>
+</body>
+</html>
