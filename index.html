@@ -39,14 +39,22 @@
             </div>
 
             <!-- 學期/範圍選擇 -->
-            <div class="mb-6">
+            <div class="mb-4">
                 <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇範圍：</label>
                 <div id="semester-buttons" class="grid grid-cols-2 gap-2">
                     <!-- 動態產生 -->
                 </div>
             </div>
 
-            <!-- 成績輸入區 (一頁式直接排列) -->
+            <!-- 考試選擇 -->
+            <div class="mb-6">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇考試：</label>
+                <div id="exam-buttons" class="grid grid-cols-3 gap-2">
+                    <!-- 動態產生 -->
+                </div>
+            </div>
+
+            <!-- 成績輸入區 -->
             <div id="subjects-container" class="space-y-3 mb-6">
                 <!-- 動態產生科目欄位 -->
             </div>
@@ -170,6 +178,7 @@
         const config = {
             "初一": {
                 "上學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -181,6 +190,7 @@
                     ]
                 },
                 "下學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -194,6 +204,7 @@
             },
             "初二": {
                 "上學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -205,6 +216,7 @@
                     ]
                 },
                 "下學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -218,6 +230,7 @@
             },
             "初三": {
                 "上學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -230,6 +243,7 @@
                     ]
                 },
                 "下學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -242,6 +256,7 @@
                     ]
                 },
                 "模擬考": {
+                    exams: ["第一次模考", "第二次模考", "第三次模考", "第四次模考"],
                     subjects: [
                         { name: "國文" },
                         { name: "數學" },
@@ -264,6 +279,7 @@
 
         let currentGrade = "初一";
         let currentSemester = "上學期";
+        let currentExam = "第一次段考";
         let calcGrade = "初一";
 
         // 模式切換 (book / calc)
@@ -303,8 +319,7 @@
             }
 
             renderSemesters();
-            renderSubjects();
-            loadData();
+            validateAndRefresh();
         }
 
         function renderSemesters() {
@@ -319,14 +334,49 @@
                 btn.onclick = () => {
                     currentSemester = sem;
                     renderSemesters();
-                    renderSubjects();
-                    loadData();
+                    validateAndRefresh();
                 };
                 btn.className = sem === currentSemester
                     ? "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
                     : "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
                 container.appendChild(btn);
             });
+        }
+
+        function validateAndRefresh() {
+            const exams = config[currentGrade][currentSemester].exams;
+            if (!exams.includes(currentExam)) {
+                currentExam = exams[0];
+            }
+            renderExams();
+            renderSubjects();
+            loadData();
+        }
+
+        function renderExams() {
+            const exams = config[currentGrade][currentSemester].exams;
+            const container = document.getElementById('exam-buttons');
+            container.innerHTML = '';
+            container.className = exams.length === 4 ? "grid grid-cols-2 gap-2" : "grid grid-cols-3 gap-2";
+
+            exams.forEach((exam) => {
+                const btn = document.createElement('button');
+                btn.innerText = exam;
+                btn.onclick = () => {
+                    currentExam = exam;
+                    renderExams();
+                    renderSubjects();
+                    loadData();
+                };
+                btn.className = exam === currentExam 
+                    ? "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                container.appendChild(btn);
+            });
+
+            const isMock = currentSemester === "模擬考";
+            document.getElementById('rank-container-1').classList.toggle('hidden', isMock);
+            document.getElementById('rank-container-2').classList.toggle('hidden', !isMock);
         }
 
         function renderSubjects() {
@@ -377,10 +427,6 @@
                 }
                 container.appendChild(row);
             });
-
-            document.getElementById('rank-container-1').classList.toggle('hidden', isMock);
-            document.getElementById('rank-container-2').classList.toggle('hidden', !isMock);
-            calculate();
         }
 
         function saveDataAndCalculate() {
@@ -405,7 +451,7 @@
                 data.scores[idx] = document.getElementById(`sub-${idx}`).value;
             });
 
-            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}`, JSON.stringify(data));
+            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`, JSON.stringify(data));
             calculate();
         }
 
@@ -453,7 +499,7 @@
         }
 
         function loadData() {
-            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}`);
+            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`);
             const isMock = currentSemester === "模擬考";
             const subjectsList = config[currentGrade][currentSemester].subjects;
 
