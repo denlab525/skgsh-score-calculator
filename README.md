@@ -1,0 +1,1 @@
+# skgsh-score-calculator
