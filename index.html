@@ -38,25 +38,16 @@
                 </div>
             </div>
 
-            <!-- 學期選擇 -->
-            <div class="mb-5">
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇學期：</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button onclick="setSemester('上學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">上學期</button>
-                    <button onclick="setSemester('下學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">下學期</button>
-                </div>
-            </div>
-
-            <!-- 考試選擇 -->
+            <!-- 學期/範圍選擇 -->
             <div class="mb-6">
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇考試：</label>
-                <div id="exam-buttons" class="grid grid-cols-3 gap-2">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇範圍：</label>
+                <div id="semester-buttons" class="grid grid-cols-2 gap-2">
                     <!-- 動態產生 -->
                 </div>
             </div>
 
-            <!-- 成績輸入區 -->
-            <div id="subjects-container" class="space-y-4 mb-6">
+            <!-- 成績輸入區 (一頁式直接排列) -->
+            <div id="subjects-container" class="space-y-3 mb-6">
                 <!-- 動態產生科目欄位 -->
             </div>
 
@@ -118,27 +109,31 @@
 
         <!-- ==================== 模式二：成績計算機 (橫向多同學對比表格) ==================== -->
         <div id="mode-calc-view" class="hidden">
-            <!-- 計算機年級選擇 -->
-            <div class="mb-4">
-                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇試算年級：</label>
-                <div class="grid grid-cols-3 gap-2">
-                    <button onclick="setCalcGrade('初一')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
-                    <button onclick="setCalcGrade('初二')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
-                    <button onclick="setCalcGrade('初三')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
+            <!-- 計算機年級選擇與清除按鈕 -->
+            <div class="flex items-end justify-between mb-4">
+                <div class="flex-1 mr-2">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇試算年級：</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setCalcGrade('初一')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
+                        <button onclick="setCalcGrade('初二')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
+                        <button onclick="setCalcGrade('初三')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
+                    </div>
                 </div>
+                <button onclick="clearCalcData()" class="px-3 py-2 text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200 rounded-xl hover:bg-rose-100 transition-all cursor-pointer h-[38px] whitespace-nowrap">
+                    🗑️ 全部清除
+                </button>
             </div>
 
             <!-- 橫向 4 位同學成績對比表格 -->
             <div class="overflow-x-auto mb-6 -mx-2 px-2">
                 <table class="w-full text-xs text-center border-collapse min-w-[340px]">
                     <thead>
-                        <!-- 第一行：座號/姓名 -->
                         <tr class="bg-slate-100 border-b border-slate-200">
                             <th class="p-1.5 text-slate-500 font-bold text-left min-w-[65px]">座號/姓名</th>
-                            <th class="p-1"><input type="text" id="calc-name-1" placeholder="同學1" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
-                            <th class="p-1"><input type="text" id="calc-name-2" placeholder="同學2" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
-                            <th class="p-1"><input type="text" id="calc-name-3" placeholder="同學3" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
-                            <th class="p-1"><input type="text" id="calc-name-4" placeholder="同學4" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-1" oninput="saveCalcData()" placeholder="同學1" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-2" oninput="saveCalcData()" placeholder="同學2" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-3" oninput="saveCalcData()" placeholder="同學3" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-4" oninput="saveCalcData()" placeholder="同學4" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
                         </tr>
                     </thead>
                     <tbody id="calc-table-body">
@@ -166,7 +161,7 @@
 
         <!-- 換機提醒提示框 -->
         <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 text-left leading-relaxed">
-            📱 <b>換機提醒</b> : 成績資料僅儲存於您目前這台裝置中。若未來更換手機或清除瀏覽器資料，紀錄將無法自動轉移，建議換機前先抄下成績備份喔！
+            📱 <b>換機提醒</b>：成績資料僅儲存於您目前這台裝置中。若未來更換手機或清除瀏覽器資料，紀錄將無法自動轉移，建議換機前先抄下成績備份喔！
         </div>
 
     </div>
@@ -175,7 +170,6 @@
         const config = {
             "初一": {
                 "上學期": {
-                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -187,7 +181,6 @@
                     ]
                 },
                 "下學期": {
-                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -201,7 +194,6 @@
             },
             "初二": {
                 "上學期": {
-                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -213,7 +205,6 @@
                     ]
                 },
                 "下學期": {
-                    exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -227,7 +218,6 @@
             },
             "初三": {
                 "上學期": {
-                    exams: ["第一次段考", "第二次段考", "期末考", "第一次模考", "第二次模考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -240,7 +230,6 @@
                     ]
                 },
                 "下學期": {
-                    exams: ["第一次段考", "第二次段考", "期末考", "第三次模考", "第四次模考"],
                     subjects: [
                         { name: "本國文", weight: 5 },
                         { name: "英語文", weight: 3 },
@@ -251,18 +240,19 @@
                         { name: "理化", weight: 2 },
                         { name: "地科/生物", weight: 1 }
                     ]
+                },
+                "模擬考": {
+                    subjects: [
+                        { name: "國文" },
+                        { name: "數學" },
+                        { name: "英語" },
+                        { name: "社會" },
+                        { name: "自然" },
+                        { name: "作文", isComposition: true }
+                    ]
                 }
             }
         };
-
-        const mockSubjects = [
-            { name: "國文" },
-            { name: "數學" },
-            { name: "英語" },
-            { name: "社會" },
-            { name: "自然" },
-            { name: "作文", isComposition: true }
-        ];
 
         const rankPoints = {
             "A++": 7, "A+": 6, "A": 5, "B++": 4, "B+": 3, "B": 2, "C": 1
@@ -274,7 +264,6 @@
 
         let currentGrade = "初一";
         let currentSemester = "上學期";
-        let currentExam = "第一次段考";
         let calcGrade = "初一";
 
         // 模式切換 (book / calc)
@@ -295,6 +284,7 @@
                 calcView.classList.remove('hidden');
                 bookView.classList.add('hidden');
                 renderCalcStudents();
+                loadCalcData();
             }
         }
 
@@ -306,60 +296,45 @@
                     ? "grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
                     : "grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
             });
-            validateAndRefresh();
-        }
 
-        function setSemester(semester) {
-            currentSemester = semester;
-            document.querySelectorAll('.semester-btn').forEach(btn => {
-                btn.className = btn.innerText === semester 
-                    ? "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
-                    : "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
-            });
-            validateAndRefresh();
-        }
-
-        function validateAndRefresh() {
-            const exams = config[currentGrade][currentSemester].exams;
-            if (!exams.includes(currentExam)) {
-                currentExam = exams[0];
+            const availableSemesters = Object.keys(config[currentGrade]);
+            if (!availableSemesters.includes(currentSemester)) {
+                currentSemester = availableSemesters[0];
             }
-            renderExams();
+
+            renderSemesters();
             renderSubjects();
             loadData();
         }
 
-        function renderExams() {
-            const exams = config[currentGrade][currentSemester].exams;
-            const container = document.getElementById('exam-buttons');
+        function renderSemesters() {
+            const container = document.getElementById('semester-buttons');
             container.innerHTML = '';
-            container.className = "grid grid-cols-3 gap-2";
-            exams.forEach((exam) => {
+            const semesters = Object.keys(config[currentGrade]);
+            container.className = semesters.length === 3 ? "grid grid-cols-3 gap-2" : "grid grid-cols-2 gap-2";
+
+            semesters.forEach(sem => {
                 const btn = document.createElement('button');
-                btn.innerText = exam;
+                btn.innerText = sem;
                 btn.onclick = () => {
-                    currentExam = exam;
-                    renderExams();
+                    currentSemester = sem;
+                    renderSemesters();
                     renderSubjects();
                     loadData();
                 };
-                btn.className = exam === currentExam 
-                    ? "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
-                    : "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                btn.className = sem === currentSemester
+                    ? "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
                 container.appendChild(btn);
             });
-
-            const isMock = currentExam.includes("模考");
-            document.getElementById('rank-container-1').classList.toggle('hidden', isMock);
-            document.getElementById('rank-container-2').classList.toggle('hidden', !isMock);
         }
 
         function renderSubjects() {
             const container = document.getElementById('subjects-container');
             container.innerHTML = '';
 
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+            const isMock = currentSemester === "模擬考";
+            const subjectsList = config[currentGrade][currentSemester].subjects;
 
             subjectsList.forEach((sub, idx) => {
                 const row = document.createElement('div');
@@ -402,11 +377,15 @@
                 }
                 container.appendChild(row);
             });
+
+            document.getElementById('rank-container-1').classList.toggle('hidden', isMock);
+            document.getElementById('rank-container-2').classList.toggle('hidden', !isMock);
+            calculate();
         }
 
         function saveDataAndCalculate() {
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+            const isMock = currentSemester === "模擬考";
+            const subjectsList = config[currentGrade][currentSemester].subjects;
             
             let data = { 
                 scores: {}, 
@@ -426,20 +405,22 @@
                 data.scores[idx] = document.getElementById(`sub-${idx}`).value;
             });
 
-            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`, JSON.stringify(data));
+            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}`, JSON.stringify(data));
             calculate();
         }
 
         function calculate() {
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+            const isMock = currentSemester === "模擬考";
+            const subjectsList = config[currentGrade][currentSemester].subjects;
 
             let totalScore = 0;
             let totalWeight = 0;
             let totalPoints = 0;
 
             subjectsList.forEach((sub, idx) => {
-                const val = document.getElementById(`sub-${idx}`).value;
+                const el = document.getElementById(`sub-${idx}`);
+                if (!el) return;
+                const val = el.value;
                 if (isMock) {
                     if (sub.isComposition && compositionPoints[val] !== undefined) {
                         totalPoints += compositionPoints[val];
@@ -472,9 +453,9 @@
         }
 
         function loadData() {
-            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`);
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}`);
+            const isMock = currentSemester === "模擬考";
+            const subjectsList = config[currentGrade][currentSemester].subjects;
 
             if (saved) {
                 const data = JSON.parse(saved);
@@ -500,7 +481,8 @@
                     if (el) el.value = "";
                 });
                 ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
-                    document.getElementById(id).value = '';
+                    const el = document.getElementById(id);
+                    if(el) el.value = '';
                 });
             }
             calculate();
@@ -515,6 +497,7 @@
                     : "calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
             });
             renderCalcStudents();
+            loadCalcData();
         }
 
         function renderCalcStudents() {
@@ -531,14 +514,65 @@
                 for (let s = 1; s <= 4; s++) {
                     rowHtml += `
                         <td class="p-1">
-                            <input type="number" id="calc-score-${s}-${subIdx}" oninput="calculateAllCalcStudents()" placeholder="分數" class="w-full bg-white border border-slate-200 rounded text-center py-1 text-xs focus:outline-none focus:border-blue-500">
+                            <input type="number" id="calc-score-${s}-${subIdx}" oninput="saveCalcData()" placeholder="分數" class="w-full bg-white border border-slate-200 rounded text-center py-1 text-xs focus:outline-none focus:border-blue-500">
                         </td>
                     `;
                 }
                 tr.innerHTML = rowHtml;
                 tbody.appendChild(tr);
             });
+        }
 
+        function saveCalcData() {
+            const subjects = config[calcGrade]["上學期"].subjects;
+            let calcData = { names: {}, scores: {} };
+
+            for (let s = 1; s <= 4; s++) {
+                const nameInput = document.getElementById(`calc-name-${s}`);
+                if (nameInput) calcData.names[s] = nameInput.value;
+
+                calcData.scores[s] = {};
+                subjects.forEach((sub, subIdx) => {
+                    const scoreInput = document.getElementById(`calc-score-${s}-${subIdx}`);
+                    if (scoreInput) calcData.scores[s][subIdx] = scoreInput.value;
+                });
+            }
+
+            localStorage.setItem(`skgsh_calc_${calcGrade}`, JSON.stringify(calcData));
+            calculateAllCalcStudents();
+        }
+
+        function loadCalcData() {
+            const saved = localStorage.getItem(`skgsh_calc_${calcGrade}`);
+            const subjects = config[calcGrade]["上學期"].subjects;
+
+            for (let s = 1; s <= 4; s++) {
+                const nameInput = document.getElementById(`calc-name-${s}`);
+                if (nameInput) nameInput.value = "";
+
+                subjects.forEach((sub, subIdx) => {
+                    const scoreInput = document.getElementById(`calc-score-${s}-${subIdx}`);
+                    if (scoreInput) scoreInput.value = "";
+                });
+            }
+
+            if (saved) {
+                const calcData = JSON.parse(saved);
+                for (let s = 1; s <= 4; s++) {
+                    if (calcData.names && calcData.names[s] !== undefined) {
+                        const nameInput = document.getElementById(`calc-name-${s}`);
+                        if (nameInput) nameInput.value = calcData.names[s];
+                    }
+                    if (calcData.scores && calcData.scores[s]) {
+                        subjects.forEach((sub, subIdx) => {
+                            if (calcData.scores[s][subIdx] !== undefined) {
+                                const scoreInput = document.getElementById(`calc-score-${s}-${subIdx}`);
+                                if (scoreInput) scoreInput.value = calcData.scores[s][subIdx];
+                            }
+                        });
+                    }
+                }
+            }
             calculateAllCalcStudents();
         }
 
@@ -565,10 +599,20 @@
             }
         }
 
+        function clearCalcData() {
+            if (confirm("確定要清除目前「" + calcGrade + "」計算機內的所有姓名與成績嗎？")) {
+                localStorage.removeItem(`skgsh_calc_${calcGrade}`);
+                loadCalcData();
+            }
+        }
+
         ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
-            document.getElementById(id).addEventListener('input', saveDataAndCalculate);
+            const el = document.getElementById(id);
+            if(el) el.addEventListener('input', saveDataAndCalculate);
         });
 
+        // 初始化
+        renderSemesters();
         setGrade("初一");
     </script>
 </body>
