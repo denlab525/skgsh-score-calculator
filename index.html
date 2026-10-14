@@ -16,94 +16,121 @@
         <h1 class="text-2xl font-bold text-center text-slate-800 mb-2 leading-snug">📊 聖功女中國中部-<br>成績紀錄器</h1>
         
         <!-- 隱私說明提示 -->
-        <div class="bg-blue-50 border border-blue-100 text-blue-700 text-xs rounded-lg p-3 mb-6 text-left leading-relaxed">
+        <div class="bg-blue-50 border border-blue-100 text-blue-700 text-xs rounded-lg p-3 mb-5 text-left leading-relaxed">
             💡 <b>隱私說明</b>：本工具所輸入的成績僅儲存於您的手機裝置中，分享網址不會洩漏或共用個人分數，請安心使用！
         </div>
 
-        <!-- 年級選擇 -->
-        <div class="mb-4">
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇年級：</label>
-            <div class="grid grid-cols-3 gap-2" id="grade-buttons">
-                <button onclick="setGrade('初一')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
-                <button onclick="setGrade('初二')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
-                <button onclick="setGrade('初三')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
-            </div>
+        <!-- 功能模式切換 (成績紀錄本 vs 成績計算機) -->
+        <div class="flex rounded-xl bg-slate-100 p-1 mb-6 border border-slate-200">
+            <button id="mode-book-btn" onclick="switchMode('book')" class="flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm">📖 成績紀錄本</button>
+            <button id="mode-calc-btn" onclick="switchMode('calc')" class="flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900">🧮 成績計算機</button>
         </div>
 
-        <!-- 學期選擇 -->
-        <div class="mb-5">
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇學期：</label>
-            <div class="grid grid-cols-2 gap-2" id="semester-buttons">
-                <button onclick="setSemester('上學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">上學期</button>
-                <button onclick="setSemester('下學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">下學期</button>
-            </div>
-        </div>
-
-        <!-- 考試選擇 -->
-        <div class="mb-6">
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇考試：</label>
-            <div id="exam-buttons" class="grid grid-cols-3 gap-2">
-                <!-- 動態產生 -->
-            </div>
-        </div>
-
-        <!-- 成績輸入區 -->
-        <div id="subjects-container" class="space-y-4 mb-6">
-            <!-- 動態產生科目欄位 -->
-        </div>
-
-        <!-- 結果顯示區 -->
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 text-center shadow-lg mb-6">
-            <div id="result-title" class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-1">加權計算結果</div>
-            <div id="score-display" class="text-3xl font-black text-amber-400 mb-1">0.0 分</div>
-            <div id="sub-display" class="text-sm text-slate-300">加權平均： <span id="avg-display" class="font-bold text-white">0.00</span> 分</div>
-            
-            <!-- 一般段考期末考排名 (單一輸入框) -->
-            <div class="mt-4 pt-3 border-t border-slate-700/60 grid grid-cols-2 gap-3" id="rank-container-1">
-                <div>
-                    <span class="text-xs text-slate-300 font-medium block mb-1">班排名</span>
-                    <input type="number" id="class-rank" placeholder="例如: 5" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                </div>
-                <div>
-                    <span class="text-xs text-slate-300 font-medium block mb-1">校排名</span>
-                    <input type="number" id="school-rank" placeholder="例如: 35" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+        <!-- ==================== 模式一：成績紀錄本 ==================== -->
+        <div id="mode-book-view">
+            <!-- 年級選擇 -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇年級：</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setGrade('初一')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
+                    <button onclick="setGrade('初二')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
+                    <button onclick="setGrade('初三')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
                 </div>
             </div>
 
-            <!-- 模考專用排名區 -->
-            <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3 hidden" id="rank-container-2">
-                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                    <span class="text-xs text-slate-300 font-medium block mb-1.5">班排名 / 總人數</span>
-                    <div class="flex items-center space-x-2">
-                        <input type="number" id="mock-class-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                        <span class="text-slate-400 font-bold text-lg">/</span>
-                        <input type="number" id="mock-class-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+            <!-- 學期選擇 -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇學期：</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="setSemester('上學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">上學期</button>
+                    <button onclick="setSemester('下學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">下學期</button>
+                </div>
+            </div>
+
+            <!-- 考試選擇 -->
+            <div class="mb-6">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇考試：</label>
+                <div id="exam-buttons" class="grid grid-cols-3 gap-2">
+                    <!-- 動態產生 -->
+                </div>
+            </div>
+
+            <!-- 成績輸入區 -->
+            <div id="subjects-container" class="space-y-4 mb-6">
+                <!-- 動態產生科目欄位 -->
+            </div>
+
+            <!-- 結果顯示區 -->
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-5 text-center shadow-lg mb-6">
+                <div id="result-title" class="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-1">加權計算結果</div>
+                <div id="score-display" class="text-3xl font-black text-amber-400 mb-1">0.0 分</div>
+                <div id="sub-display" class="text-sm text-slate-300">加權平均： <span id="avg-display" class="font-bold text-white">0.00</span> 分</div>
+                
+                <!-- 一般段考期末考排名 -->
+                <div class="mt-4 pt-3 border-t border-slate-700/60 grid grid-cols-2 gap-3" id="rank-container-1">
+                    <div>
+                        <span class="text-xs text-slate-300 font-medium block mb-1">班排名</span>
+                        <input type="number" id="class-rank" placeholder="例如: 5" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-300 font-medium block mb-1">校排名</span>
+                        <input type="number" id="school-rank" placeholder="例如: 35" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
-                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                    <span class="text-xs text-slate-300 font-medium block mb-1.5">校排名 / 總人數</span>
-                    <div class="flex items-center space-x-2">
-                        <input type="number" id="mock-school-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                        <span class="text-slate-400 font-bold text-lg">/</span>
-                        <input type="number" id="mock-school-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+
+                <!-- 模考專用排名區 -->
+                <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3 hidden" id="rank-container-2">
+                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-300 font-medium block mb-1.5">班排名 / 總人數</span>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="mock-class-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                            <span class="text-slate-400 font-bold text-lg">/</span>
+                            <input type="number" id="mock-class-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-300 font-medium block mb-1.5">校排名 / 總人數</span>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="mock-school-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                            <span class="text-slate-400 font-bold text-lg">/</span>
+                            <input type="number" id="mock-school-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-300 font-medium block mb-1.5">區排名 / 總人數</span>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="mock-district-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                            <span class="text-slate-400 font-bold text-lg">/</span>
+                            <input type="number" id="mock-district-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
+                        <span class="text-xs text-slate-300 font-medium block mb-1.5">區(女)排名 / 總人數</span>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="mock-district-female-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                            <span class="text-slate-400 font-bold text-lg">/</span>
+                            <input type="number" id="mock-district-female-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
+                        </div>
                     </div>
                 </div>
-                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                    <span class="text-xs text-slate-300 font-medium block mb-1.5">區排名 / 總人數</span>
-                    <div class="flex items-center space-x-2">
-                        <input type="number" id="mock-district-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                        <span class="text-slate-400 font-bold text-lg">/</span>
-                        <input type="number" id="mock-district-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                    </div>
+            </div>
+        </div>
+
+        <!-- ==================== 模式二：成績計算機 (多學生試算) ==================== -->
+        <div id="mode-calc-view" class="hidden">
+            <!-- 計算機年級選擇 -->
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇試算年級：</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setCalcGrade('初一')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
+                    <button onclick="setCalcGrade('初二')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
+                    <button onclick="setCalcGrade('初三')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
                 </div>
-                <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
-                    <span class="text-xs text-slate-300 font-medium block mb-1.5">區(女)排名 / 總人數</span>
-                    <div class="flex items-center space-x-2">
-                        <input type="number" id="mock-district-female-rank" placeholder="名次" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                        <span class="text-slate-400 font-bold text-lg">/</span>
-                        <input type="number" id="mock-district-female-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
-                    </div>
-                </div>
+            </div>
+
+            <!-- 4 位同學成績對比區域 -->
+            <div class="space-y-6 mb-6" id="calc-students-container">
+                <!-- 動態產生 4 位同學卡片 -->
             </div>
         </div>
 
@@ -208,54 +235,57 @@
         ];
 
         const rankPoints = {
-            "A++": 7,
-            "A+": 6,
-            "A": 5,
-            "B++": 4,
-            "B+": 3,
-            "B": 2,
-            "C": 1
+            "A++": 7, "A+": 6, "A": 5, "B++": 4, "B+": 3, "B": 2, "C": 1
         };
 
         const compositionPoints = {
-            "6級分": 1.0,
-            "5級分": 0.8,
-            "4級分": 0.6,
-            "3級分": 0.4,
-            "2級分": 0.2,
-            "1級分": 0.1,
-            "0級分": 0.0
+            "6級分": 1.0, "5級分": 0.8, "4級分": 0.6, "3級分": 0.4, "2級分": 0.2, "1級分": 0.1, "0級分": 0.0
         };
 
         let currentGrade = "初一";
         let currentSemester = "上學期";
         let currentExam = "第一次段考";
+        let calcGrade = "初一";
 
+        // 模式切換 (book / calc)
+        function switchMode(mode) {
+            const bookBtn = document.getElementById('mode-book-btn');
+            const calcBtn = document.getElementById('mode-calc-btn');
+            const bookView = document.getElementById('mode-book-view');
+            const calcView = document.getElementById('mode-calc-view');
+
+            if (mode === 'book') {
+                bookBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm";
+                calcBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900";
+                bookView.classList.remove('hidden');
+                calcView.classList.add('hidden');
+            } else {
+                calcBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm";
+                bookBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900";
+                calcView.classList.remove('hidden');
+                bookView.classList.add('hidden');
+                renderCalcStudents();
+            }
+        }
+
+        // --- 紀錄本邏輯 ---
         function setGrade(grade) {
             currentGrade = grade;
-            
             document.querySelectorAll('.grade-btn').forEach(btn => {
-                if(btn.innerText === grade) {
-                    btn.className = "grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm";
-                } else {
-                    btn.className = "grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
-                }
+                btn.className = btn.innerText === grade 
+                    ? "grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
             });
-
             validateAndRefresh();
         }
 
         function setSemester(semester) {
             currentSemester = semester;
-            
             document.querySelectorAll('.semester-btn').forEach(btn => {
-                if(btn.innerText === semester) {
-                    btn.className = "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm";
-                } else {
-                    btn.className = "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
-                }
+                btn.className = btn.innerText === semester 
+                    ? "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
             });
-
             validateAndRefresh();
         }
 
@@ -273,7 +303,6 @@
             const exams = config[currentGrade][currentSemester].exams;
             const container = document.getElementById('exam-buttons');
             container.innerHTML = '';
-            
             container.className = "grid grid-cols-3 gap-2";
             exams.forEach((exam) => {
                 const btn = document.createElement('button');
@@ -284,24 +313,15 @@
                     renderSubjects();
                     loadData();
                 };
-                if(exam === currentExam) {
-                    btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm";
-                } else {
-                    btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
-                }
+                btn.className = exam === currentExam 
+                    ? "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
                 container.appendChild(btn);
             });
 
             const isMock = currentExam.includes("模考");
-            const rankContainer1 = document.getElementById('rank-container-1');
-            const rankContainer2 = document.getElementById('rank-container-2');
-            if (isMock) {
-                rankContainer1.classList.add('hidden');
-                rankContainer2.classList.remove('hidden');
-            } else {
-                rankContainer1.classList.remove('hidden');
-                rankContainer2.classList.add('hidden');
-            }
+            document.getElementById('rank-container-1').classList.toggle('hidden', isMock);
+            document.getElementById('rank-container-2').classList.toggle('hidden', !isMock);
         }
 
         function renderSubjects() {
@@ -331,157 +351,4 @@
                     defaultOpt.innerText = sub.isComposition ? "請選擇級分" : "請選擇等第";
                     defaultOpt.disabled = true;
                     defaultOpt.selected = true;
-                    select.appendChild(defaultOpt);
-
-                    if (sub.isComposition) {
-                        Object.keys(compositionPoints).forEach(comp => {
-                            const opt = document.createElement('option');
-                            opt.value = comp;
-                            opt.innerText = `${comp} (${compositionPoints[comp]}分)`;
-                            select.appendChild(opt);
-                        });
-                    } else {
-                        Object.keys(rankPoints).forEach(rank => {
-                            const opt = document.createElement('option');
-                            opt.value = rank;
-                            opt.innerText = `${rank} (${rankPoints[rank]}分)`;
-                            select.appendChild(opt);
-                        });
-                    }
-                    row.appendChild(select);
-                } else {
-                    const input = document.createElement('input');
-                    input.type = "number";
-                    input.id = `sub-${idx}`;
-                    input.placeholder = "請輸入";
-                    input.className = "w-28 bg-white border border-slate-300 text-right px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-blue-500";
-                    input.oninput = saveDataAndCalculate;
-                    row.appendChild(input);
-                }
-
-                container.appendChild(row);
-            });
-        }
-
-        function saveDataAndCalculate() {
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
-            
-            let data = { 
-                scores: {}, 
-                classRank: document.getElementById('class-rank').value, 
-                schoolRank: document.getElementById('school-rank').value,
-                mockClassRank: document.getElementById('mock-class-rank').value,
-                mockClassTotal: document.getElementById('mock-class-total').value,
-                mockSchoolRank: document.getElementById('mock-school-rank').value,
-                mockSchoolTotal: document.getElementById('mock-school-total').value,
-                mockDistrictRank: document.getElementById('mock-district-rank').value,
-                mockDistrictTotal: document.getElementById('mock-district-total').value,
-                mockDistrictFemaleRank: document.getElementById('mock-district-female-rank').value,
-                mockDistrictFemaleTotal: document.getElementById('mock-district-female-total').value
-            };
-
-            subjectsList.forEach((sub, idx) => {
-                const val = document.getElementById(`sub-${idx}`).value;
-                data.scores[idx] = val;
-            });
-
-            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`, JSON.stringify(data));
-            calculate();
-        }
-
-        function calculate() {
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
-
-            let totalScore = 0;
-            let totalWeight = 0;
-            let totalPoints = 0;
-
-            subjectsList.forEach((sub, idx) => {
-                const val = document.getElementById(`sub-${idx}`).value;
-                if (isMock) {
-                    if (sub.isComposition) {
-                        if (val && compositionPoints[val] !== undefined) {
-                            totalPoints += compositionPoints[val];
-                        }
-                    } else {
-                        if (val && rankPoints[val] !== undefined) {
-                            totalPoints += rankPoints[val];
-                        }
-                    }
-                } else {
-                    const score = parseFloat(val);
-                    if (!isNaN(score)) {
-                        totalScore += score * sub.weight;
-                        totalWeight += sub.weight;
-                    }
-                }
-            });
-
-            const resultTitle = document.getElementById('result-title');
-            const scoreDisplay = document.getElementById('score-display');
-            const subDisplay = document.getElementById('sub-display');
-
-            if (isMock) {
-                resultTitle.innerText = "模考總積分計算結果";
-                scoreDisplay.innerText = `${totalPoints.toFixed(1)} 積分`;
-                subDisplay.innerHTML = `採計科目： <span class="font-bold text-white">5科 + 作文</span>`;
-            } else {
-                resultTitle.innerText = "加權計算結果";
-                const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
-                scoreDisplay.innerText = `${totalScore.toFixed(1)} 分`;
-                subDisplay.innerHTML = `加權平均： <span class="font-bold text-white">${avg}</span> 分`;
-            }
-        }
-
-        function loadData() {
-            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`);
-            const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
-
-            if (saved) {
-                const data = JSON.parse(saved);
-                subjectsList.forEach((sub, idx) => {
-                    const el = document.getElementById(`sub-${idx}`);
-                    if (el && data.scores && data.scores[idx] !== undefined) {
-                        el.value = data.scores[idx];
-                    }
-                });
-                document.getElementById('class-rank').value = data.classRank || '';
-                document.getElementById('school-rank').value = data.schoolRank || '';
-                document.getElementById('mock-class-rank').value = data.mockClassRank || '';
-                document.getElementById('mock-class-total').value = data.mockClassTotal || '';
-                document.getElementById('mock-school-rank').value = data.mockSchoolRank || '';
-                document.getElementById('mock-school-total').value = data.mockSchoolTotal || '';
-                document.getElementById('mock-district-rank').value = data.mockDistrictRank || '';
-                document.getElementById('mock-district-total').value = data.mockDistrictTotal || '';
-                document.getElementById('mock-district-female-rank').value = data.mockDistrictFemaleRank || '';
-                document.getElementById('mock-district-female-total').value = data.mockDistrictFemaleTotal || '';
-            } else {
-                subjectsList.forEach((sub, idx) => {
-                    const el = document.getElementById(`sub-${idx}`);
-                    if (el) el.value = "";
-                });
-                document.getElementById('class-rank').value = '';
-                document.getElementById('school-rank').value = '';
-                document.getElementById('mock-class-rank').value = '';
-                document.getElementById('mock-class-total').value = '';
-                document.getElementById('mock-school-rank').value = '';
-                document.getElementById('mock-school-total').value = '';
-                document.getElementById('mock-district-rank').value = '';
-                document.getElementById('mock-district-total').value = '';
-                document.getElementById('mock-district-female-rank').value = '';
-                document.getElementById('mock-district-female-total').value = '';
-            }
-            calculate();
-        }
-
-        ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
-            document.getElementById(id).addEventListener('input', saveDataAndCalculate);
-        });
-
-        setGrade("初一");
-    </script>
-</body>
-</html>
+       
