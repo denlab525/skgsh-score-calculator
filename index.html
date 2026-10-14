@@ -20,10 +20,11 @@
             💡 <b>隱私說明</b>：本工具所輸入的成績僅儲存於您的手機裝置中，分享網址不會洩漏或共用個人分數，請安心使用！
         </div>
 
-        <!-- 功能模式切換 (成績紀錄本 vs 成績計算機) -->
+        <!-- 功能模式切換 (成績紀錄本 vs 成績計算機 vs 成績總表) -->
         <div class="flex rounded-xl bg-slate-100 p-1 mb-6 border border-slate-200">
-            <button id="mode-book-btn" onclick="switchMode('book')" class="flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm">📖 成績紀錄本</button>
-            <button id="mode-calc-btn" onclick="switchMode('calc')" class="flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900">🧮 成績計算機</button>
+            <button id="mode-book-btn" onclick="switchMode('book')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm">📖 紀錄本</button>
+            <button id="mode-calc-btn" onclick="switchMode('calc')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900">🧮 計算機</button>
+            <button id="mode-summary-btn" onclick="switchMode('summary')" class="flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900">📊 成績總表</button>
         </div>
 
         <!-- ==================== 模式一：成績紀錄本 ==================== -->
@@ -115,9 +116,8 @@
             </div>
         </div>
 
-        <!-- ==================== 模式二：成績計算機 (橫向多同學對比表格) ==================== -->
+        <!-- ==================== 模式二：成績計算機 ==================== -->
         <div id="mode-calc-view" class="hidden">
-            <!-- 計算機年級選擇與清除按鈕 -->
             <div class="flex items-end justify-between mb-4">
                 <div class="flex-1 mr-2">
                     <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇試算年級：</label>
@@ -132,7 +132,6 @@
                 </button>
             </div>
 
-            <!-- 橫向 4 位同學成績對比表格 -->
             <div class="overflow-x-auto mb-6 -mx-2 px-2">
                 <table class="w-full text-xs text-center border-collapse min-w-[340px]">
                     <thead>
@@ -144,9 +143,7 @@
                             <th class="p-1"><input type="text" id="calc-name-4" oninput="saveCalcData()" placeholder="同學4" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
                         </tr>
                     </thead>
-                    <tbody id="calc-table-body">
-                        <!-- 動態產生科目輸入列 -->
-                    </tbody>
+                    <tbody id="calc-table-body"></tbody>
                     <tfoot class="bg-slate-800 text-white font-semibold">
                         <tr class="border-t border-slate-700">
                             <td class="p-1.5 text-left text-slate-300">加權總分</td>
@@ -167,6 +164,18 @@
             </div>
         </div>
 
+        <!-- ==================== 模式三：成績總表 ==================== -->
+        <div id="mode-summary-view" class="hidden">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-sm font-bold text-slate-700">📋 個人三年成績總覽</h2>
+                <button onclick="renderSummaryTable()" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all cursor-pointer">🔄 重新整理</button>
+            </div>
+            
+            <div class="space-y-4 mb-6" id="summary-container">
+                <!-- 動態載入總表內容 -->
+            </div>
+        </div>
+
         <!-- 換機提醒提示框 -->
         <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 text-left leading-relaxed">
             📱 <b>換機提醒</b>：成績資料僅儲存於您目前這台裝置中。若未來更換手機或清除瀏覽器資料，紀錄將無法自動轉移，建議換機前先抄下成績備份喔！
@@ -180,25 +189,15 @@
                 "上學期": {
                     exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
-                        { name: "本國文", weight: 5 },
-                        { name: "英語文", weight: 3 },
-                        { name: "數學", weight: 4 },
-                        { name: "歷史", weight: 1 },
-                        { name: "地理", weight: 1 },
-                        { name: "公民", weight: 1 },
-                        { name: "生物", weight: 3 }
+                        { name: "本國文", weight: 5 }, { name: "英語文", weight: 3 }, { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 }, { name: "地理", weight: 1 }, { name: "公民", weight: 1 }, { name: "生物", weight: 3 }
                     ]
                 },
                 "下學期": {
                     exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
-                        { name: "本國文", weight: 5 },
-                        { name: "英語文", weight: 3 },
-                        { name: "數學", weight: 4 },
-                        { name: "歷史", weight: 1 },
-                        { name: "地理", weight: 1 },
-                        { name: "公民", weight: 1 },
-                        { name: "生物", weight: 3 }
+                        { name: "本國文", weight: 5 }, { name: "英語文", weight: 3 }, { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 }, { name: "地理", weight: 1 }, { name: "公民", weight: 1 }, { name: "生物", weight: 3 }
                     ]
                 }
             },
@@ -206,25 +205,15 @@
                 "上學期": {
                     exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
-                        { name: "本國文", weight: 5 },
-                        { name: "英語文", weight: 3 },
-                        { name: "數學", weight: 4 },
-                        { name: "歷史", weight: 1 },
-                        { name: "地理", weight: 1 },
-                        { name: "公民", weight: 1 },
-                        { name: "理化", weight: 3 }
+                        { name: "本國文", weight: 5 }, { name: "英語文", weight: 3 }, { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 }, { name: "地理", weight: 1 }, { name: "公民", weight: 1 }, { name: "理化", weight: 3 }
                     ]
                 },
                 "下學期": {
                     exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
-                        { name: "本國文", weight: 5 },
-                        { name: "英語文", weight: 3 },
-                        { name: "數學", weight: 4 },
-                        { name: "歷史", weight: 1 },
-                        { name: "地理", weight: 1 },
-                        { name: "公民", weight: 1 },
-                        { name: "理化", weight: 3 }
+                        { name: "本國文", weight: 5 }, { name: "英語文", weight: 3 }, { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 }, { name: "地理", weight: 1 }, { name: "公民", weight: 1 }, { name: "理化", weight: 3 }
                     ]
                 }
             },
@@ -232,75 +221,58 @@
                 "上學期": {
                     exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
-                        { name: "本國文", weight: 5 },
-                        { name: "英語文", weight: 3 },
-                        { name: "數學", weight: 4 },
-                        { name: "歷史", weight: 1 },
-                        { name: "地理", weight: 1 },
-                        { name: "公民", weight: 1 },
-                        { name: "理化", weight: 2 },
-                        { name: "地科/生物", weight: 1 }
+                        { name: "本國文", weight: 5 }, { name: "英語文", weight: 3 }, { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 }, { name: "地理", weight: 1 }, { name: "公民", weight: 1 },
+                        { name: "理化", weight: 2 }, { name: "地科/生物", weight: 1 }
                     ]
                 },
                 "下學期": {
                     exams: ["第一次段考", "第二次段考", "期末考"],
                     subjects: [
-                        { name: "本國文", weight: 5 },
-                        { name: "英語文", weight: 3 },
-                        { name: "數學", weight: 4 },
-                        { name: "歷史", weight: 1 },
-                        { name: "地理", weight: 1 },
-                        { name: "公民", weight: 1 },
-                        { name: "理化", weight: 2 },
-                        { name: "地科/生物", weight: 1 }
+                        { name: "本國文", weight: 5 }, { name: "英語文", weight: 3 }, { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 }, { name: "地理", weight: 1 }, { name: "公民", weight: 1 },
+                        { name: "理化", weight: 2 }, { name: "地科/生物", weight: 1 }
                     ]
                 },
                 "模擬考": {
                     exams: ["第一次模考", "第二次模考", "第三次模考", "第四次模考"],
                     subjects: [
-                        { name: "國文" },
-                        { name: "數學" },
-                        { name: "英語" },
-                        { name: "社會" },
-                        { name: "自然" },
-                        { name: "作文", isComposition: true }
+                        { name: "國文" }, { name: "數學" }, { name: "英語" }, { name: "社會" }, { name: "自然" }, { name: "作文", isComposition: true }
                     ]
                 }
             }
         };
 
-        const rankPoints = {
-            "A++": 7, "A+": 6, "A": 5, "B++": 4, "B+": 3, "B": 2, "C": 1
-        };
-
-        const compositionPoints = {
-            "6級分": 1.0, "5級分": 0.8, "4級分": 0.6, "3級分": 0.4, "2級分": 0.2, "1級分": 0.1, "0級分": 0.0
-        };
+        const rankPoints = { "A++": 7, "A+": 6, "A": 5, "B++": 4, "B+": 3, "B": 2, "C": 1 };
+        const compositionPoints = { "6級分": 1.0, "5級分": 0.8, "4級分": 0.6, "3級分": 0.4, "2級分": 0.2, "1級分": 0.1, "0級分": 0.0 };
 
         let currentGrade = "初一";
         let currentSemester = "上學期";
         let currentExam = "第一次段考";
         let calcGrade = "初一";
 
-        // 模式切換 (book / calc)
+        // 模式切換 (book / calc / summary)
         function switchMode(mode) {
             const bookBtn = document.getElementById('mode-book-btn');
             const calcBtn = document.getElementById('mode-calc-btn');
+            const summaryBtn = document.getElementById('mode-summary-btn');
             const bookView = document.getElementById('mode-book-view');
             const calcView = document.getElementById('mode-calc-view');
+            const summaryView = document.getElementById('mode-summary-view');
 
-            if (mode === 'book') {
-                bookBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm";
-                calcBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900";
-                bookView.classList.remove('hidden');
-                calcView.classList.add('hidden');
-            } else {
-                calcBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer bg-white text-blue-600 shadow-sm";
-                bookBtn.className = "flex-1 py-2 text-xs sm:text-sm font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:text-slate-900";
-                calcView.classList.remove('hidden');
-                bookView.classList.add('hidden');
+            bookBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer " + (mode === 'book' ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:text-slate-900");
+            calcBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer " + (mode === 'calc' ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:text-slate-900");
+            summaryBtn.className = "flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer " + (mode === 'summary' ? "bg-white text-blue-600 shadow-sm" : "text-slate-600 hover:text-slate-900");
+
+            bookView.classList.toggle('hidden', mode !== 'book');
+            calcView.classList.toggle('hidden', mode !== 'calc');
+            summaryView.classList.toggle('hidden', mode !== 'summary');
+
+            if (mode === 'calc') {
                 renderCalcStudents();
                 loadCalcData();
+            } else if (mode === 'summary') {
+                renderSummaryTable();
             }
         }
 
@@ -534,6 +506,86 @@
             calculate();
         }
 
+        // --- 成績總表邏輯 ---
+        function renderSummaryTable() {
+            const container = document.getElementById('summary-container');
+            container.innerHTML = '';
+
+            const grades = ["初一", "初二", "初三"];
+            
+            grades.forEach(grade => {
+                const semesters = Object.keys(config[grade]);
+                semesters.forEach(sem => {
+                    const exams = config[grade][sem].exams;
+                    const subjects = config[grade][sem].subjects;
+                    const isMock = sem === "模擬考";
+
+                    exams.forEach(exam => {
+                        const saved = localStorage.getItem(`skgsh_${grade}_${sem}_${exam}`);
+                        let totalScore = 0;
+                        let totalWeight = 0;
+                        let totalPoints = 0;
+                        let hasData = false;
+                        let rankText = "";
+
+                        if (saved) {
+                            const data = JSON.parse(saved);
+                            subjects.forEach((sub, idx) => {
+                                const val = data.scores ? data.scores[idx] : "";
+                                if (val !== "" && val !== undefined) {
+                                    hasData = true;
+                                    if (isMock) {
+                                        if (sub.isComposition && compositionPoints[val] !== undefined) totalPoints += compositionPoints[val];
+                                        else if (!sub.isComposition && rankPoints[val] !== undefined) totalPoints += rankPoints[val];
+                                    } else {
+                                        const score = parseFloat(val);
+                                        if (!isNaN(score)) {
+                                            totalScore += score * sub.weight;
+                                            totalWeight += sub.weight;
+                                        }
+                                    }
+                                }
+                            });
+
+                            if (isMock) {
+                                if (data.mockClassRank) rankText += `班排:${data.mockClassRank} `;
+                                if (data.mockSchoolRank) rankText += `校排:${data.mockSchoolRank} `;
+                                if (data.mockDistrictRank) rankText += `區排:${data.mockDistrictRank}`;
+                            } else {
+                                if (data.classRank) rankText += `班排:${data.classRank} `;
+                                if (data.schoolRank) rankText += `校排:${data.schoolRank}`;
+                            }
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = "bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between";
+
+                        let scoreInfo = "";
+                        if (!hasData) {
+                            scoreInfo = `<span class="text-slate-400 italic">尚未輸入成績</span>`;
+                        } else if (isMock) {
+                            scoreInfo = `<span class="text-amber-600 font-bold">${totalPoints.toFixed(1)} 積分</span>`;
+                        } else {
+                            const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
+                            scoreInfo = `<span class="text-blue-600 font-bold">${totalScore.toFixed(1)} 分</span> <span class="text-slate-500 text-[11px]">(平均 ${avg})</span>`;
+                        }
+
+                        card.innerHTML = `
+                            <div>
+                                <div class="text-xs font-bold text-slate-800">${grade} · ${sem}</div>
+                                <div class="text-xs text-slate-600 font-medium">${exam}</div>
+                                ${rankText ? `<div class="text-[10px] text-slate-400 mt-0.5">${rankText}</div>` : ''}
+                            </div>
+                            <div class="text-right text-xs">
+                                ${scoreInfo}
+                            </div>
+                        `;
+                        container.appendChild(card);
+                    });
+                });
+            });
+        }
+
         // --- 成績計算機 (橫向表格) 邏輯 ---
         function setCalcGrade(grade) {
             calcGrade = grade;
@@ -646,7 +698,7 @@
         }
 
         function clearCalcData() {
-            if (confirm("確定要清除目前「" + calcGrade + "」計算機內的所有姓名與成績嗎？")) {
+            if (confirm("確定要清除目前內部的所有姓名與成績嗎？")) {
                 localStorage.removeItem(`skgsh_calc_${calcGrade}`);
                 loadCalcData();
             }
