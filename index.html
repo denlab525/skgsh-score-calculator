@@ -166,12 +166,11 @@
 
         <!-- ==================== 模式三：成績總表 ==================== -->
         <div id="mode-summary-view" class="hidden">
-            <div class="mb-4 flex items-center justify-between">
+            <div class="mb-4">
                 <h2 class="text-sm font-bold text-slate-700">📋 個人三年成績總覽</h2>
-                <button onclick="renderSummaryTable()" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all cursor-pointer">🔄 重新整理</button>
             </div>
             
-            <div class="space-y-4 mb-6" id="summary-container">
+            <div class="space-y-3 mb-6" id="summary-container">
                 <!-- 動態載入總表內容 -->
             </div>
         </div>
@@ -506,7 +505,7 @@
             calculate();
         }
 
-        // --- 成績總表邏輯 ---
+        // --- 成績總表邏輯 (優化排版與補齊區女排) ---
         function renderSummaryTable() {
             const container = document.getElementById('summary-container');
             container.innerHTML = '';
@@ -526,7 +525,7 @@
                         let totalWeight = 0;
                         let totalPoints = 0;
                         let hasData = false;
-                        let rankText = "";
+                        let ranksHtml = "";
 
                         if (saved) {
                             const data = JSON.parse(saved);
@@ -548,35 +547,47 @@
                             });
 
                             if (isMock) {
-                                if (data.mockClassRank) rankText += `班排:${data.mockClassRank} `;
-                                if (data.mockSchoolRank) rankText += `校排:${data.mockSchoolRank} `;
-                                if (data.mockDistrictRank) rankText += `區排:${data.mockDistrictRank}`;
+                                let rankArr = [];
+                                if (data.mockClassRank) rankArr.push(`班:${data.mockClassRank}`);
+                                if (data.mockSchoolRank) rankArr.push(`校:${data.mockSchoolRank}`);
+                                if (data.mockDistrictRank) rankArr.push(`區:${data.mockDistrictRank}`);
+                                if (data.mockDistrictFemaleRank) rankArr.push(`區女:${data.mockDistrictFemaleRank}`);
+                                if (rankArr.length > 0) {
+                                    ranksHtml = `<div class="text-[11px] text-slate-500 font-medium mt-0.5">排名：${rankArr.join(' ')}</div>`;
+                                }
                             } else {
-                                if (data.classRank) rankText += `班排:${data.classRank} `;
-                                if (data.schoolRank) rankText += `校排:${data.schoolRank}`;
+                                let rankArr = [];
+                                if (data.classRank) rankArr.push(`班:${data.classRank}`);
+                                if (data.schoolRank) rankArr.push(`校:${data.schoolRank}`);
+                                if (rankArr.length > 0) {
+                                    ranksHtml = `<div class="text-[11px] text-slate-500 font-medium mt-0.5">排名：${rankArr.join(' ')}</div>`;
+                                }
                             }
                         }
 
                         const card = document.createElement('div');
-                        card.className = "bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between";
+                        card.className = "bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center justify-between shadow-xs";
 
                         let scoreInfo = "";
                         if (!hasData) {
-                            scoreInfo = `<span class="text-slate-400 italic">尚未輸入成績</span>`;
+                            scoreInfo = `<span class="text-slate-400 italic text-xs">尚未輸入</span>`;
                         } else if (isMock) {
-                            scoreInfo = `<span class="text-amber-600 font-bold">${totalPoints.toFixed(1)} 積分</span>`;
+                            scoreInfo = `<div class="text-amber-600 font-black text-sm">${totalPoints.toFixed(1)} 積分</div>`;
                         } else {
                             const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
-                            scoreInfo = `<span class="text-blue-600 font-bold">${totalScore.toFixed(1)} 分</span> <span class="text-slate-500 text-[11px]">(平均 ${avg})</span>`;
+                            scoreInfo = `
+                                <div class="text-blue-600 font-black text-sm">${totalScore.toFixed(1)} 分</div>
+                                <div class="text-slate-500 text-[11px]">平均 ${avg}</div>
+                            `;
                         }
 
                         card.innerHTML = `
                             <div>
                                 <div class="text-xs font-bold text-slate-800">${grade} · ${sem}</div>
-                                <div class="text-xs text-slate-600 font-medium">${exam}</div>
-                                ${rankText ? `<div class="text-[10px] text-slate-400 mt-0.5">${rankText}</div>` : ''}
+                                <div class="text-sm font-extrabold text-slate-900">${exam}</div>
+                                ${ranksHtml}
                             </div>
-                            <div class="text-right text-xs">
+                            <div class="text-right">
                                 ${scoreInfo}
                             </div>
                         `;
