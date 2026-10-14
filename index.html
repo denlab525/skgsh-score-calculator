@@ -13,20 +13,29 @@
     <div class="max-w-md mx-auto bg-white rounded-2xl shadow-xl p-6 border border-slate-100">
         
         <!-- 標題 -->
-        <h1 class="text-2xl font-bold text-center text-slate-800 mb-2">📊 聖功女中國中部-<br>成績紀錄器</h1>
+        <h1 class="text-2xl font-bold text-center text-slate-800 mb-2 leading-snug">📊 聖功女中國中部<br>成績紀錄器</h1>
         
         <!-- 隱私說明提示 -->
         <div class="bg-blue-50 border border-blue-100 text-blue-700 text-xs rounded-lg p-3 mb-6 text-center leading-relaxed">
-            💡 <b>隱私說明</b>：本工具所有成績皆僅儲存於您自己的手機或電腦裝置中，分享網址不會洩漏或共用個人分數，請安心使用！
+            💡 <b>隱私說明</b>：本工具所有成績皆僅儲存於您自己的手機或電腦裝置中，分享網址或重新整理皆不會洩漏或共用個人分數，請安心使用！
         </div>
 
         <!-- 年級選擇 -->
-        <div class="mb-5">
+        <div class="mb-4">
             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇年級：</label>
             <div class="grid grid-cols-3 gap-2" id="grade-buttons">
                 <button onclick="setGrade('初一')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
                 <button onclick="setGrade('初二')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
                 <button onclick="setGrade('初三')" class="grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
+            </div>
+        </div>
+
+        <!-- 學期選擇 (初一、初二、初三皆有) -->
+        <div class="mb-5">
+            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇學期：</label>
+            <div class="grid grid-cols-2 gap-2" id="semester-buttons">
+                <button onclick="setSemester('上學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm">上學期</button>
+                <button onclick="setSemester('下學期')" class="semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50">下學期</button>
             </div>
         </div>
 
@@ -61,9 +70,8 @@
                 </div>
             </div>
 
-            <!-- 模考專用排名區 (改為獨立上下行，提供充足寬度容納大數字) -->
+            <!-- 模考專用排名區 (改為獨立上下行，支援五位數人數) -->
             <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3 hidden" id="rank-container-2">
-                <!-- 班排名 / 人數 -->
                 <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
                     <span class="text-xs text-slate-300 font-medium block mb-1.5">班排名 / 總人數</span>
                     <div class="flex items-center space-x-2">
@@ -72,7 +80,6 @@
                         <input type="number" id="mock-class-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
-                <!-- 校排名 / 人數 -->
                 <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
                     <span class="text-xs text-slate-300 font-medium block mb-1.5">校排名 / 總人數</span>
                     <div class="flex items-center space-x-2">
@@ -81,7 +88,6 @@
                         <input type="number" id="mock-school-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
-                <!-- 區排名 / 人數 -->
                 <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
                     <span class="text-xs text-slate-300 font-medium block mb-1.5">區排名 / 總人數</span>
                     <div class="flex items-center space-x-2">
@@ -90,7 +96,6 @@
                         <input type="number" id="mock-district-total" placeholder="人數" class="w-full bg-slate-800 border border-slate-600 text-center text-white font-bold rounded-lg py-2 text-base focus:outline-none focus:border-amber-400">
                     </div>
                 </div>
-                <!-- 區(女)排名 / 人數 -->
                 <div class="bg-slate-800/60 p-2.5 rounded-xl border border-slate-700">
                     <span class="text-xs text-slate-300 font-medium block mb-1.5">區(女)排名 / 總人數</span>
                     <div class="flex items-center space-x-2">
@@ -107,41 +112,84 @@
     <script>
         const config = {
             "初一": {
-                exams: ["第一次段考", "第二次段考", "期末考"],
-                subjects: [
-                    { name: "本國文", weight: 5 },
-                    { name: "英語文", weight: 3 },
-                    { name: "數學", weight: 4 },
-                    { name: "歷史", weight: 1 },
-                    { name: "地理", weight: 1 },
-                    { name: "公民", weight: 1 },
-                    { name: "生物", weight: 3 }
-                ]
+                "上學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
+                    subjects: [
+                        { name: "本國文", weight: 5 },
+                        { name: "英語文", weight: 3 },
+                        { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 },
+                        { name: "地理", weight: 1 },
+                        { name: "公民", weight: 1 },
+                        { name: "生物", weight: 3 }
+                    ]
+                },
+                "下學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
+                    subjects: [
+                        { name: "本國文", weight: 5 },
+                        { name: "英語文", weight: 3 },
+                        { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 },
+                        { name: "地理", weight: 1 },
+                        { name: "公民", weight: 1 },
+                        { name: "生物", weight: 3 }
+                    ]
+                }
             },
             "初二": {
-                exams: ["第一次段考", "第二次段考", "期末考"],
-                subjects: [
-                    { name: "本國文", weight: 5 },
-                    { name: "英語文", weight: 3 },
-                    { name: "數學", weight: 4 },
-                    { name: "歷史", weight: 1 },
-                    { name: "地理", weight: 1 },
-                    { name: "公民", weight: 1 },
-                    { name: "理化", weight: 3 }
-                ]
+                "上學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
+                    subjects: [
+                        { name: "本國文", weight: 5 },
+                        { name: "英語文", weight: 3 },
+                        { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 },
+                        { name: "地理", weight: 1 },
+                        { name: "公民", weight: 1 },
+                        { name: "理化", weight: 3 }
+                    ]
+                },
+                "下學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考"],
+                    subjects: [
+                        { name: "本國文", weight: 5 },
+                        { name: "英語文", weight: 3 },
+                        { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 },
+                        { name: "地理", weight: 1 },
+                        { name: "公民", weight: 1 },
+                        { name: "理化", weight: 3 }
+                    ]
+                }
             },
             "初三": {
-                exams: ["第一次段考", "第二次段考", "期末考", "第一次模考", "第二次模考", "第三次模考", "第四次模考"],
-                subjects: [
-                    { name: "本國文", weight: 5 },
-                    { name: "英語文", weight: 3 },
-                    { name: "數學", weight: 4 },
-                    { name: "歷史", weight: 1 },
-                    { name: "地理", weight: 1 },
-                    { name: "公民", weight: 1 },
-                    { name: "理化", weight: 3 },
-                    { name: "地科", weight: 1 }
-                ]
+                "上學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考", "第一次模考", "第二次模考"],
+                    subjects: [
+                        { name: "本國文", weight: 5 },
+                        { name: "英語文", weight: 3 },
+                        { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 },
+                        { name: "地理", weight: 1 },
+                        { name: "公民", weight: 1 },
+                        { name: "理化", weight: 3 },
+                        { name: "地科", weight: 1 }
+                    ]
+                },
+                "下學期": {
+                    exams: ["第一次段考", "第二次段考", "期末考", "第三次模考", "第四次模考"],
+                    subjects: [
+                        { name: "本國文", weight: 5 },
+                        { name: "英語文", weight: 3 },
+                        { name: "數學", weight: 4 },
+                        { name: "歷史", weight: 1 },
+                        { name: "地理", weight: 1 },
+                        { name: "公民", weight: 1 },
+                        { name: "理化", weight: 3 },
+                        { name: "地科", weight: 1 }
+                    ]
+                }
             }
         };
 
@@ -175,6 +223,7 @@
         };
 
         let currentGrade = "初一";
+        let currentSemester = "上學期";
         let currentExam = "第一次段考";
 
         function setGrade(grade) {
@@ -188,7 +237,25 @@
                 }
             });
 
-            const exams = config[grade].exams;
+            validateAndRefresh();
+        }
+
+        function setSemester(semester) {
+            currentSemester = semester;
+            
+            document.querySelectorAll('.semester-btn').forEach(btn => {
+                if(btn.innerText === semester) {
+                    btn.className = "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm";
+                } else {
+                    btn.className = "semester-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                }
+            });
+
+            validateAndRefresh();
+        }
+
+        function validateAndRefresh() {
+            const exams = config[currentGrade][currentSemester].exams;
             if (!exams.includes(currentExam)) {
                 currentExam = exams[0];
             }
@@ -198,52 +265,27 @@
         }
 
         function renderExams() {
-            const exams = config[currentGrade].exams;
+            const exams = config[currentGrade][currentSemester].exams;
             const container = document.getElementById('exam-buttons');
             container.innerHTML = '';
             
-            if (currentGrade === "初三") {
-                container.className = "grid grid-cols-3 gap-2";
-                exams.forEach((exam, idx) => {
-                    const btn = document.createElement('button');
-                    btn.innerText = exam;
-                    btn.onclick = () => {
-                        currentExam = exam;
-                        renderExams();
-                        renderSubjects();
-                        loadData();
-                    };
-                    if(idx === 3) {
-                        const spacer = document.createElement('div');
-                        spacer.className = "col-span-3 h-1";
-                        container.appendChild(spacer);
-                    }
-                    if(exam === currentExam) {
-                        btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm";
-                    } else {
-                        btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
-                    }
-                    container.appendChild(btn);
-                });
-            } else {
-                container.className = "grid grid-cols-3 gap-2";
-                exams.forEach(exam => {
-                    const btn = document.createElement('button');
-                    btn.innerText = exam;
-                    btn.onclick = () => {
-                        currentExam = exam;
-                        renderExams();
-                        renderSubjects();
-                        loadData();
-                    };
-                    if(exam === currentExam) {
-                        btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm";
-                    } else {
-                        btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
-                    }
-                    container.appendChild(btn);
-                });
-            }
+            container.className = "grid grid-cols-3 gap-2";
+            exams.forEach((exam, idx) => {
+                const btn = document.createElement('button');
+                btn.innerText = exam;
+                btn.onclick = () => {
+                    currentExam = exam;
+                    renderExams();
+                    renderSubjects();
+                    loadData();
+                };
+                if(exam === currentExam) {
+                    btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-slate-900 text-white border-slate-900 shadow-sm";
+                } else {
+                    btn.className = "exam-btn py-2 text-xs font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                }
+                container.appendChild(btn);
+            });
 
             const isMock = currentExam.includes("模考");
             const rankContainer1 = document.getElementById('rank-container-1');
@@ -262,7 +304,7 @@
             container.innerHTML = '';
 
             const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade].subjects;
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
 
             subjectsList.forEach((sub, idx) => {
                 const row = document.createElement('div');
@@ -318,7 +360,7 @@
 
         function saveDataAndCalculate() {
             const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade].subjects;
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
             
             let data = { 
                 scores: {}, 
@@ -339,13 +381,13 @@
                 data.scores[idx] = val;
             });
 
-            localStorage.setItem(`skgsh_${currentGrade}_${currentExam}`, JSON.stringify(data));
+            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`, JSON.stringify(data));
             calculate();
         }
 
         function calculate() {
             const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade].subjects;
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
 
             let totalScore = 0;
             let totalWeight = 0;
@@ -389,9 +431,9 @@
         }
 
         function loadData() {
-            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentExam}`);
+            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`);
             const isMock = currentExam.includes("模考");
-            const subjectsList = isMock ? mockSubjects : config[currentGrade].subjects;
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
 
             if (saved) {
                 const data = JSON.parse(saved);
