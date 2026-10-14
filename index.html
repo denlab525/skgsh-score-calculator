@@ -351,4 +351,209 @@
                     defaultOpt.innerText = sub.isComposition ? "請選擇級分" : "請選擇等第";
                     defaultOpt.disabled = true;
                     defaultOpt.selected = true;
-       
+                    select.appendChild(defaultOpt);
+
+                    const targetMap = sub.isComposition ? compositionPoints : rankPoints;
+                    Object.keys(targetMap).forEach(k => {
+                        const opt = document.createElement('option');
+                        opt.value = k;
+                        opt.innerText = `${k} (${targetMap[k]}分)`;
+                        select.appendChild(opt);
+                    });
+                    row.appendChild(select);
+                } else {
+                    const input = document.createElement('input');
+                    input.type = "number";
+                    input.id = `sub-${idx}`;
+                    input.placeholder = "請輸入";
+                    input.className = "w-28 bg-white border border-slate-300 text-right px-3 py-1.5 rounded-lg text-sm focus:outline-none focus:border-blue-500";
+                    input.oninput = saveDataAndCalculate;
+                    row.appendChild(input);
+                }
+                container.appendChild(row);
+            });
+        }
+
+        function saveDataAndCalculate() {
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+            
+            let data = { 
+                scores: {}, 
+                classRank: document.getElementById('class-rank').value, 
+                schoolRank: document.getElementById('school-rank').value,
+                mockClassRank: document.getElementById('mock-class-rank').value,
+                mockClassTotal: document.getElementById('mock-class-total').value,
+                mockSchoolRank: document.getElementById('mock-school-rank').value,
+                mockSchoolTotal: document.getElementById('mock-school-total').value,
+                mockDistrictRank: document.getElementById('mock-district-rank').value,
+                mockDistrictTotal: document.getElementById('mock-district-total').value,
+                mockDistrictFemaleRank: document.getElementById('mock-district-female-rank').value,
+                mockDistrictFemaleTotal: document.getElementById('mock-district-female-total').value
+            };
+
+            subjectsList.forEach((sub, idx) => {
+                data.scores[idx] = document.getElementById(`sub-${idx}`).value;
+            });
+
+            localStorage.setItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`, JSON.stringify(data));
+            calculate();
+        }
+
+        function calculate() {
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+
+            let totalScore = 0;
+            let totalWeight = 0;
+            let totalPoints = 0;
+
+            subjectsList.forEach((sub, idx) => {
+                const val = document.getElementById(`sub-${idx}`).value;
+                if (isMock) {
+                    if (sub.isComposition && compositionPoints[val] !== undefined) {
+                        totalPoints += compositionPoints[val];
+                    } else if (!sub.isComposition && rankPoints[val] !== undefined) {
+                        totalPoints += rankPoints[val];
+                    }
+                } else {
+                    const score = parseFloat(val);
+                    if (!isNaN(score)) {
+                        totalScore += score * sub.weight;
+                        totalWeight += sub.weight;
+                    }
+                }
+            });
+
+            const resultTitle = document.getElementById('result-title');
+            const scoreDisplay = document.getElementById('score-display');
+            const subDisplay = document.getElementById('sub-display');
+
+            if (isMock) {
+                resultTitle.innerText = "模考總積分計算結果";
+                scoreDisplay.innerText = `${totalPoints.toFixed(1)} 積分`;
+                subDisplay.innerHTML = `採計科目： <span class="font-bold text-white">5科 + 作文</span>`;
+            } else {
+                resultTitle.innerText = "加權計算結果";
+                const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
+                scoreDisplay.innerText = `${totalScore.toFixed(1)} 分`;
+                subDisplay.innerHTML = `加權平均： <span class="font-bold text-white">${avg}</span> 分`;
+            }
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem(`skgsh_${currentGrade}_${currentSemester}_${currentExam}`);
+            const isMock = currentExam.includes("模考");
+            const subjectsList = isMock ? mockSubjects : config[currentGrade][currentSemester].subjects;
+
+            if (saved) {
+                const data = JSON.parse(saved);
+                subjectsList.forEach((sub, idx) => {
+                    const el = document.getElementById(`sub-${idx}`);
+                    if (el && data.scores && data.scores[idx] !== undefined) {
+                        el.value = data.scores[idx];
+                    }
+                });
+                document.getElementById('class-rank').value = data.classRank || '';
+                document.getElementById('school-rank').value = data.schoolRank || '';
+                document.getElementById('mock-class-rank').value = data.mockClassRank || '';
+                document.getElementById('mock-class-total').value = data.mockClassTotal || '';
+                document.getElementById('mock-school-rank').value = data.mockSchoolRank || '';
+                document.getElementById('mock-school-total').value = data.mockSchoolTotal || '';
+                document.getElementById('mock-district-rank').value = data.mockDistrictRank || '';
+                document.getElementById('mock-district-total').value = data.mockDistrictTotal || '';
+                document.getElementById('mock-district-female-rank').value = data.mockDistrictFemaleRank || '';
+                document.getElementById('mock-district-female-total').value = data.mockDistrictFemaleTotal || '';
+            } else {
+                subjectsList.forEach((sub, idx) => {
+                    const el = document.getElementById(`sub-${idx}`);
+                    if (el) el.value = "";
+                });
+                ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+            }
+            calculate();
+        }
+
+        // --- 成績計算機邏輯 ---
+        function setCalcGrade(grade) {
+            calcGrade = grade;
+            document.querySelectorAll('.calc-grade-btn').forEach(btn => {
+                btn.className = btn.innerText === grade 
+                    ? "calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+            });
+            renderCalcStudents();
+        }
+
+        function renderCalcStudents() {
+            const container = document.getElementById('calc-students-container');
+            container.innerHTML = '';
+            const subjects = config[calcGrade]["上學期"].subjects;
+
+            for (let s = 1; s <= 4; s++) {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 rounded-2xl p-4 border border-slate-200 shadow-sm";
+
+                let html = `
+                    <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-md">同學 ${s}</span>
+                            <input type="text" id="calc-name-${s}" placeholder="請輸入座號/姓名" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-lg px-2.5 py-1 focus:outline-none focus:border-blue-500 font-medium w-36">
+                        </div>
+                    </div>
+                    <div class="space-y-2 mb-4">
+                `;
+
+                subjects.forEach((sub, idx) => {
+                    html += `
+                        <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-100">
+                            <span class="text-xs font-medium text-slate-600">${sub.name} (x${sub.weight})</span>
+                            <input type="number" id="calc-score-${s}-${idx}" oninput="calculateCalcStudent(${s})" placeholder="分數" class="w-20 border border-slate-200 rounded text-right px-2 py-1 text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                    <div class="bg-slate-800 text-white rounded-xl p-3 flex justify-between items-center text-xs">
+                        <div>加權總分：<span id="calc-total-${s}" class="text-amber-400 font-bold text-sm">0.0</span> 分</div>
+                        <div>加權平均：<span id="calc-avg-${s}" class="text-white font-bold text-sm">0.00</span> 分</div>
+                    </div>
+                `;
+
+                card.innerHTML = html;
+                container.appendChild(card);
+            }
+        }
+
+        function calculateCalcStudent(studentIdx) {
+            const subjects = config[calcGrade]["上學期"].subjects;
+            let totalScore = 0;
+            let totalWeight = 0;
+
+            subjects.forEach((sub, idx) => {
+                const input = document.getElementById(`calc-score-${studentIdx}-${idx}`);
+                const val = parseFloat(input.value);
+                if (!isNaN(val)) {
+                    totalScore += val * sub.weight;
+                    totalWeight += sub.weight;
+                }
+            });
+
+            const totalEl = document.getElementById(`calc-total-${studentIdx}`);
+            const avgEl = document.getElementById(`calc-avg-${studentIdx}`);
+
+            totalEl.innerText = totalScore.toFixed(1);
+            avgEl.innerText = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
+        }
+
+        ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
+            document.getElementById(id).addEventListener('input', saveDataAndCalculate);
+        });
+
+        setGrade("初一");
+    </script>
+</body>
+</html>
