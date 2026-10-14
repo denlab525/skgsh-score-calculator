@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>國中段考加權成績計算機</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen py-8 px-4">
+    <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-center text-slate-800 mb-6">📊 國中段考加權成績計算機</h1>
+        
+        <!-- 年級選擇 -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700 mb-2">請選擇年級：</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="setGrade(1)" id="btn-grade-1" class="py-2.5 px-4 text-center rounded-xl font-medium border transition-all bg-blue-600 text-white shadow-sm">初一</button>
+                <button type="button" onclick="setGrade(2)" id="btn-grade-2" class="py-2.5 px-4 text-center rounded-xl font-medium border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初二</button>
+                <button type="button" onclick="setGrade(3)" id="btn-grade-3" class="py-2.5 px-4 text-center rounded-xl font-medium border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">初三</button>
+            </div>
+        </div>
+
+        <!-- 考試次數選擇 -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-slate-700 mb-2">請選擇考試：</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="setExam(1)" id="btn-exam-1" class="py-2 px-3 text-center text-sm rounded-xl font-medium border transition-all bg-slate-800 text-white shadow-sm">第一次段考</button>
+                <button type="button" onclick="setExam(2)" id="btn-exam-2" class="py-2 px-3 text-center text-sm rounded-xl font-medium border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">第二次段考</button>
+                <button type="button" onclick="setExam(3)" id="btn-exam-3" class="py-2 px-3 text-center text-sm rounded-xl font-medium border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50">期末考</button>
+            </div>
+        </div>
+
+        <!-- 各科成績輸入區 (動態生成) -->
+        <div id="subjectsContainer" class="space-y-3 mb-6">
+            <!-- 這裡會由 JavaScript 自動帶入 -->
+        </div>
+
+        <!-- 結果顯示區 -->
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 text-center mb-6">
+            <div class="text-sm text-blue-600 font-medium mb-1">加權計算結果</div>
+            <div id="weightedTotal" class="text-3xl font-extrabold text-blue-700 mb-1">0 分</div>
+            <div class="text-sm text-slate-600">加權平均：<span id="weightedAvg" class="font-bold text-slate-800 text-lg">0</span> 分</div>
+        </div>
+
+        <!-- 排名輸入區 -->
+        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">班排名</label>
+                <input type="number" id="classRank" placeholder="例如: 5" class="w-full px-3 py-2 border rounded-xl text-center text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white" oninput="saveData()">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1">校排名</label>
+                <input type="number" id="schoolRank" placeholder="例如: 35" class="w-full px-3 py-2 border rounded-xl text-center text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white" oninput="saveData()">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gradeData = {
+            1: [
+                { id: 'chinese', name: '本國文', weight: 5 },
+                { id: 'english', name: '英語文', weight: 3 },
+                { id: 'math', name: '數學', weight: 4 },
+                { id: 'history', name: '歷史', weight: 1 },
+                { id: 'geography', name: '地理', weight: 1 },
+                { id: 'civics', name: '公民', weight: 1 },
+                { id: 'biology', name: '生物', weight: 3 }
+            ],
+            2: [
+                { id: 'chinese', name: '本國文', weight: 5 },
+                { id: 'english', name: '英語文', weight: 3 },
+                { id: 'math', name: '數學', weight: 4 },
+                { id: 'history', name: '歷史', weight: 1 },
+                { id: 'geography', name: '地理', weight: 1 },
+                { id: 'civics', name: '公民', weight: 1 },
+                { id: 'physics_chem', name: '理化', weight: 3 }
+            ],
+            3: [
+                { id: 'chinese', name: '本國文', weight: 5 },
+                { id: 'english', name: '英語文', weight: 3 },
+                { id: 'math', name: '數學', weight: 4 },
+                { id: 'history', name: '歷史', weight: 1 },
+                { id: 'geography', name: '地理', weight: 1 },
+                { id: 'civics', name: '公民', weight: 1 },
+                { id: 'physics_chem', name: '理化', weight: 3 },
+                { id: 'earth_sci', name: '地科', weight: 1 }
+            ]
+        };
+
+        let currentGrade = 1;
+        let currentExam = 1;
+
+        function setGrade(grade) {
+            currentGrade = grade;
+            updateButtons();
+            renderSubjects();
+            loadData();
+            calculate();
+        }
+
+        function setExam(exam) {
+            currentExam = exam;
+            updateButtons();
+            renderSubjects();
+            loadData();
+            calculate();
+        }
+
+        function updateButtons() {
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`btn-grade-${i}`);
+                if (i === currentGrade) {
+                    btn.className = "py-2.5 px-4 text-center rounded-xl font-medium border transition-all bg-blue-600 text-white shadow-sm";
+                } else {
+                    btn.className = "py-2.5 px-4 text-center rounded-xl font-medium border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                }
+            }
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`btn-exam-${i}`);
+                if (i === currentExam) {
+                    btn.className = "py-2 px-3 text-center text-sm rounded-xl font-medium border transition-all bg-slate-800 text-white shadow-sm";
+                } else {
+                    btn.className = "py-2 px-3 text-center text-sm rounded-xl font-medium border transition-all bg-white text-slate-700 border-slate-200 hover:bg-slate-50";
+                }
+            }
+        }
+
+        function renderSubjects() {
+            const container = document.getElementById('subjectsContainer');
+            container.innerHTML = '';
+            
+            const subjects = gradeData[currentGrade];
+            subjects.forEach(sub => {
+                const html = `
+                    <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl">
+                        <label class="font-medium text-slate-700 text-sm">${sub.name} <span class="text-xs text-slate-400">(x${sub.weight})</span></label>
+                        <input type="number" id="${sub.id}" placeholder="請輸入" class="w-28 px-3 py-1.5 border rounded-lg text-right text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white" oninput="saveData()">
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        // 儲存所有分數與排名到 localStorage
+        function saveData() {
+            const subjects = gradeData[currentGrade];
+            let data = {};
+            
+            subjects.forEach(sub => {
+                const input = document.getElementById(sub.id);
+                if (input) {
+                    data[sub.id] = input.value;
+                }
+            });
+
+            // 儲存排名
+            data['classRank'] = document.getElementById('classRank').value;
+            data['schoolRank'] = document.getElementById('schoolRank').value;
+
+            const storageKey = `grade_${currentGrade}_exam_${currentExam}`;
+            localStorage.setItem(storageKey, JSON.stringify(data));
+
+            calculate();
+        }
+
+        // 讀取對應年級與考試的資料
+        function loadData() {
+            const storageKey = `grade_${currentGrade}_exam_${currentExam}`;
+            const savedData = localStorage.getItem(storageKey);
+            
+            // 先清空排名輸入框避免殘留
+            document.getElementById('classRank').value = '';
+            document.getElementById('schoolRank').value = '';
+
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                const subjects = gradeData[currentGrade];
+                
+                subjects.forEach(sub => {
+                    const input = document.getElementById(sub.id);
+                    if (input && data[sub.id] !== undefined) {
+                        input.value = data[sub.id];
+                    }
+                });
+
+                if (data['classRank'] !== undefined) {
+                    document.getElementById('classRank').value = data['classRank'];
+                }
+                if (data['schoolRank'] !== undefined) {
+                    document.getElementById('schoolRank').value = data['schoolRank'];
+                }
+            }
+        }
+
+        function calculate() {
+            const subjects = gradeData[currentGrade];
+            let weightedSum = 0;
+            let totalWeight = 0;
+
+            subjects.forEach(sub => {
+                const input = document.getElementById(sub.id);
+                const val = input ? parseFloat(input.value) : NaN;
+                
+                if (!isNaN(val)) {
+                    weightedSum += val * sub.weight;
+                    totalWeight += sub.weight;
+                }
+            });
+
+            const weightedAvg = totalWeight > 0 ? (weightedSum / totalWeight) : 0;
+
+            document.getElementById('weightedTotal').innerText = weightedSum.toFixed(1) + ' 分';
+            document.getElementById('weightedAvg').innerText = weightedAvg.toFixed(2);
+        }
+
+        // 初始化
+        renderSubjects();
+        loadData();
+        calculate();
+    </script>
+</body>
+</html>
