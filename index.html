@@ -116,10 +116,10 @@
             </div>
         </div>
 
-        <!-- ==================== 模式二：成績計算機 (多學生試算) ==================== -->
+        <!-- ==================== 模式二：成績計算機 (橫向多同學對比表格) ==================== -->
         <div id="mode-calc-view" class="hidden">
             <!-- 計算機年級選擇 -->
-            <div class="mb-5">
+            <div class="mb-4">
                 <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">請選擇試算年級：</label>
                 <div class="grid grid-cols-3 gap-2">
                     <button onclick="setCalcGrade('初一')" class="calc-grade-btn py-2 text-sm font-medium rounded-xl border transition-all cursor-pointer bg-blue-600 text-white border-blue-600 shadow-sm">初一</button>
@@ -128,9 +128,39 @@
                 </div>
             </div>
 
-            <!-- 4 位同學成績對比區域 -->
-            <div class="space-y-6 mb-6" id="calc-students-container">
-                <!-- 動態產生 4 位同學卡片 -->
+            <!-- 橫向 4 位同學成績對比表格 -->
+            <div class="overflow-x-auto mb-6 -mx-2 px-2">
+                <table class="w-full text-xs text-center border-collapse min-w-[340px]">
+                    <thead>
+                        <!-- 第一行：座號/姓名 -->
+                        <tr class="bg-slate-100 border-b border-slate-200">
+                            <th class="p-1.5 text-slate-500 font-bold text-left min-w-[65px]">座號/姓名</th>
+                            <th class="p-1"><input type="text" id="calc-name-1" placeholder="同學1" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-2" placeholder="同學2" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-3" placeholder="同學3" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                            <th class="p-1"><input type="text" id="calc-name-4" placeholder="同學4" class="w-full bg-white border border-slate-300 text-center text-slate-800 rounded px-1 py-1 focus:outline-none focus:border-blue-500 font-bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="calc-table-body">
+                        <!-- 動態產生科目輸入列 -->
+                    </tbody>
+                    <tfoot class="bg-slate-800 text-white font-semibold">
+                        <tr class="border-t border-slate-700">
+                            <td class="p-1.5 text-left text-slate-300">加權總分</td>
+                            <td class="p-1 text-amber-400 font-bold" id="calc-total-1">0.0</td>
+                            <td class="p-1 text-amber-400 font-bold" id="calc-total-2">0.0</td>
+                            <td class="p-1 text-amber-400 font-bold" id="calc-total-3">0.0</td>
+                            <td class="p-1 text-amber-400 font-bold" id="calc-total-4">0.0</td>
+                        </tr>
+                        <tr>
+                            <td class="p-1.5 text-left text-slate-300">加權平均</td>
+                            <td class="p-1 font-bold" id="calc-avg-1">0.00</td>
+                            <td class="p-1 font-bold" id="calc-avg-2">0.00</td>
+                            <td class="p-1 font-bold" id="calc-avg-3">0.00</td>
+                            <td class="p-1 font-bold" id="calc-avg-4">0.00</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         </div>
 
@@ -179,7 +209,7 @@
                         { name: "歷史", weight: 1 },
                         { name: "地理", weight: 1 },
                         { name: "公民", weight: 1 },
-                        { name: "理化", weight: 2 }
+                        { name: "理化", weight: 3 }
                     ]
                 },
                 "下學期": {
@@ -191,7 +221,7 @@
                         { name: "歷史", weight: 1 },
                         { name: "地理", weight: 1 },
                         { name: "公民", weight: 1 },
-                        { name: "理化", weight: 2 }
+                        { name: "理化", weight: 3 }
                     ]
                 }
             },
@@ -268,7 +298,7 @@
             }
         }
 
-        // --- 紀錄本邏輯 ---
+        // --- 成績紀錄本邏輯 ---
         function setGrade(grade) {
             currentGrade = grade;
             document.querySelectorAll('.grade-btn').forEach(btn => {
@@ -476,7 +506,7 @@
             calculate();
         }
 
-        // --- 成績計算機邏輯 ---
+        // --- 成績計算機 (橫向表格) 邏輯 ---
         function setCalcGrade(grade) {
             calcGrade = grade;
             document.querySelectorAll('.calc-grade-btn').forEach(btn => {
@@ -488,65 +518,51 @@
         }
 
         function renderCalcStudents() {
-            const container = document.getElementById('calc-students-container');
-            container.innerHTML = '';
+            const tbody = document.getElementById('calc-table-body');
+            tbody.innerHTML = '';
+            const subjects = config[calcGrade]["上學期"].subjects;
+
+            subjects.forEach((sub, subIdx) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-100 hover:bg-slate-50";
+
+                let rowHtml = `<td class="p-1.5 text-left font-medium text-slate-700 whitespace-nowrap">${sub.name}<span class="text-slate-400 text-[10px] ml-0.5">x${sub.weight}</span></td>`;
+
+                for (let s = 1; s <= 4; s++) {
+                    rowHtml += `
+                        <td class="p-1">
+                            <input type="number" id="calc-score-${s}-${subIdx}" oninput="calculateAllCalcStudents()" placeholder="分數" class="w-full bg-white border border-slate-200 rounded text-center py-1 text-xs focus:outline-none focus:border-blue-500">
+                        </td>
+                    `;
+                }
+                tr.innerHTML = rowHtml;
+                tbody.appendChild(tr);
+            });
+
+            calculateAllCalcStudents();
+        }
+
+        function calculateAllCalcStudents() {
             const subjects = config[calcGrade]["上學期"].subjects;
 
             for (let s = 1; s <= 4; s++) {
-                const card = document.createElement('div');
-                card.className = "bg-slate-50 rounded-2xl p-4 border border-slate-200 shadow-sm";
+                let totalScore = 0;
+                let totalWeight = 0;
 
-                let html = `
-                    <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-200">
-                        <div class="flex items-center space-x-2">
-                            <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-md">同學 ${s}</span>
-                            <input type="text" id="calc-name-${s}" placeholder="請輸入座號/姓名" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-lg px-2.5 py-1 focus:outline-none focus:border-blue-500 font-medium w-36">
-                        </div>
-                    </div>
-                    <div class="space-y-2 mb-4">
-                `;
-
-                subjects.forEach((sub, idx) => {
-                    html += `
-                        <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-100">
-                            <span class="text-xs font-medium text-slate-600">${sub.name} (x${sub.weight})</span>
-                            <input type="number" id="calc-score-${s}-${idx}" oninput="calculateCalcStudent(${s})" placeholder="分數" class="w-20 border border-slate-200 rounded text-right px-2 py-1 text-xs focus:outline-none focus:border-blue-500">
-                        </div>
-                    `;
+                subjects.forEach((sub, subIdx) => {
+                    const input = document.getElementById(`calc-score-${s}-${subIdx}`);
+                    if (input) {
+                        const val = parseFloat(input.value);
+                        if (!isNaN(val)) {
+                            totalScore += val * sub.weight;
+                            totalWeight += sub.weight;
+                        }
+                    }
                 });
 
-                html += `
-                    </div>
-                    <div class="bg-slate-800 text-white rounded-xl p-3 flex justify-between items-center text-xs">
-                        <div>加權總分：<span id="calc-total-${s}" class="text-amber-400 font-bold text-sm">0.0</span> 分</div>
-                        <div>加權平均：<span id="calc-avg-${s}" class="text-white font-bold text-sm">0.00</span> 分</div>
-                    </div>
-                `;
-
-                card.innerHTML = html;
-                container.appendChild(card);
+                document.getElementById(`calc-total-${s}`).innerText = totalScore.toFixed(1);
+                document.getElementById(`calc-avg-${s}`).innerText = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
             }
-        }
-
-        function calculateCalcStudent(studentIdx) {
-            const subjects = config[calcGrade]["上學期"].subjects;
-            let totalScore = 0;
-            let totalWeight = 0;
-
-            subjects.forEach((sub, idx) => {
-                const input = document.getElementById(`calc-score-${studentIdx}-${idx}`);
-                const val = parseFloat(input.value);
-                if (!isNaN(val)) {
-                    totalScore += val * sub.weight;
-                    totalWeight += sub.weight;
-                }
-            });
-
-            const totalEl = document.getElementById(`calc-total-${studentIdx}`);
-            const avgEl = document.getElementById(`calc-avg-${studentIdx}`);
-
-            totalEl.innerText = totalScore.toFixed(1);
-            avgEl.innerText = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
         }
 
         ['class-rank', 'school-rank', 'mock-class-rank', 'mock-class-total', 'mock-school-rank', 'mock-school-total', 'mock-district-rank', 'mock-district-total', 'mock-district-female-rank', 'mock-district-female-total'].forEach(id => {
