@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- ==================== 模式三：成績總表 (最新排版微調) ==================== -->
+        <!-- ==================== 模式三：成績總表 (排名文字靠左對齊修正) ==================== -->
         <div id="mode-summary-view" class="hidden">
             <div class="mb-4">
                 <h2 class="text-sm font-bold text-slate-700">📋 個人三年成績總覽</h2>
@@ -177,7 +177,7 @@
 
         <!-- 換機提醒提示框 -->
         <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl p-3.5 text-left leading-relaxed">
-            📱 <b>換機提醒</b>：成績資料僅儲存於您目前這台裝置中。若未來更換手機或清除瀏覽器資料，紀錄將無法自動轉移，建議換機前先抄下成績備份喔！
+            📱 <b>換機提醒</b> : 成績資料僅儲存於您目前這台裝置中。若未來更換手機或清除瀏覽器資料，紀錄將無法自動轉移，建議換機前先抄下成績備份喔！
         </div>
 
     </div>
@@ -503,7 +503,7 @@
             calculate();
         }
 
-        // --- 成績總表邏輯 (去除邊框、改藍字、上下排、移除加權兩字) ---
+        // --- 成績總表邏輯 (排名文字改為內部靠左對齊) ---
         function renderSummaryTable() {
             const container = document.getElementById('summary-container');
             container.innerHTML = '';
@@ -568,19 +568,19 @@
                             card.innerHTML = `
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-1">${grade} · ${sem}</span>
-                                        <div class="text-base font-black text-slate-900">${exam}</div>
+                                        <div class="text-xs font-bold text-blue-600 mb-0.5">${grade} · ${sem}</div>
+                                        <div class="text-base font-semibold text-slate-800">${exam}</div>
                                     </div>
                                     <div class="text-slate-400 italic text-xs">尚未輸入成績</div>
                                 </div>
                             `;
                         } else if (isMock) {
-                            // 模擬考：維持原樣
+                            // 模擬考維持原樣
                             card.innerHTML = `
                                 <div class="flex items-start justify-between">
                                     <div>
-                                        <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-1">${grade} · ${sem}</span>
-                                        <div class="text-base font-black text-slate-900">${exam}</div>
+                                        <div class="text-xs font-bold text-blue-600 mb-0.5">${grade} · ${sem}</div>
+                                        <div class="text-base font-semibold text-slate-800">${exam}</div>
                                         ${mockRanksStr ? `<div class="text-xs text-slate-600 font-medium mt-1.5">${mockRanksStr}</div>` : ''}
                                     </div>
                                     <div class="text-right">
@@ -589,18 +589,20 @@
                                 </div>
                             `;
                         } else {
-                            // 一般段考：右上為無框藍字的上下排班排名與校排名，左下為總分與平均（無「加權」二字）
+                            // 一般段考：右上為靠右放置、但內部文字靠左對齊的班排與校排
                             const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
                             card.innerHTML = `
                                 <div class="flex items-start justify-between mb-3">
                                     <div>
-                                        <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-1">${grade} · ${sem}</span>
-                                        <div class="text-base font-black text-slate-900">${exam}</div>
+                                        <div class="text-xs font-bold text-blue-600 mb-0.5">${grade} · ${sem}</div>
+                                        <div class="text-base font-semibold text-slate-800">${exam}</div>
                                     </div>
-                                    <div class="text-right font-black text-sm text-blue-600 leading-tight">
-                                        ${classRankVal ? `<div>${classRankVal}</div>` : ''}
-                                        ${schoolRankVal ? `<div>${schoolRankVal}</div>` : ''}
-                                        ${!classRankVal && !schoolRankVal ? '<span class="text-xs text-slate-400 font-normal">無排名資料</span>' : ''}
+                                    <div class="text-right">
+                                        <div class="inline-block text-left font-bold text-sm text-blue-600 leading-tight">
+                                            ${classRankVal ? `<div>${classRankVal}</div>` : ''}
+                                            ${schoolRankVal ? `<div>${schoolRankVal}</div>` : ''}
+                                            ${!classRankVal && !schoolRankVal ? '<span class="text-xs text-slate-400 font-normal">無排名資料</span>' : ''}
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-600 font-semibold">
