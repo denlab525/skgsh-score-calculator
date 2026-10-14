@@ -164,7 +164,7 @@
             </div>
         </div>
 
-        <!-- ==================== 模式三：成績總表 (上下分開排版) ==================== -->
+        <!-- ==================== 模式三：成績總表 (最新排版微調) ==================== -->
         <div id="mode-summary-view" class="hidden">
             <div class="mb-4">
                 <h2 class="text-sm font-bold text-slate-700">📋 個人三年成績總覽</h2>
@@ -503,7 +503,7 @@
             calculate();
         }
 
-        // --- 成績總表邏輯 (佈局與格式對調，上下分開) ---
+        // --- 成績總表邏輯 (去除邊框、改藍字、上下排、移除加權兩字) ---
         function renderSummaryTable() {
             const container = document.getElementById('summary-container');
             container.innerHTML = '';
@@ -523,7 +523,9 @@
                         let totalWeight = 0;
                         let totalPoints = 0;
                         let hasData = false;
-                        let ranksStr = "";
+                        let classRankVal = "";
+                        let schoolRankVal = "";
+                        let mockRanksStr = "";
 
                         if (saved) {
                             const data = JSON.parse(saved);
@@ -551,15 +553,11 @@
                                 if (data.mockDistrictRank) rankArr.push(`區排名:${data.mockDistrictRank}`);
                                 if (data.mockDistrictFemaleRank) rankArr.push(`區(女)排名:${data.mockDistrictFemaleRank}`);
                                 if (rankArr.length > 0) {
-                                    ranksStr = rankArr.join(' | ');
+                                    mockRanksStr = rankArr.join(' | ');
                                 }
                             } else {
-                                let rankArr = [];
-                                if (data.classRank) rankArr.push(`班排名:${data.classRank}`);
-                                if (data.schoolRank) rankArr.push(`校排名:${data.schoolRank}`);
-                                if (rankArr.length > 0) {
-                                    ranksStr = rankArr.join(' | ');
-                                }
+                                classRankVal = data.classRank ? `班排名: ${data.classRank}` : "";
+                                schoolRankVal = data.schoolRank ? `校排名: ${data.schoolRank}` : "";
                             }
                         }
 
@@ -577,13 +575,13 @@
                                 </div>
                             `;
                         } else if (isMock) {
-                            // 模擬考：維持原樣（左側標題與四區排名，右側總積分）
+                            // 模擬考：維持原樣
                             card.innerHTML = `
                                 <div class="flex items-start justify-between">
                                     <div>
                                         <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-1">${grade} · ${sem}</span>
                                         <div class="text-base font-black text-slate-900">${exam}</div>
-                                        ${ranksStr ? `<div class="text-xs text-slate-600 font-medium mt-1.5">${ranksStr}</div>` : ''}
+                                        ${mockRanksStr ? `<div class="text-xs text-slate-600 font-medium mt-1.5">${mockRanksStr}</div>` : ''}
                                     </div>
                                     <div class="text-right">
                                         <div class="text-amber-600 font-black text-lg">${totalPoints.toFixed(1)} <span class="text-xs font-bold text-amber-700">積分</span></div>
@@ -591,7 +589,7 @@
                                 </div>
                             `;
                         } else {
-                            // 一般段考：佈局與格式對調（上層放明顯加粗的排名，下層放標準字型的分數平均）
+                            // 一般段考：右上為無框藍字的上下排班排名與校排名，左下為總分與平均（無「加權」二字）
                             const avg = totalWeight > 0 ? (totalScore / totalWeight).toFixed(2) : "0.00";
                             card.innerHTML = `
                                 <div class="flex items-start justify-between mb-3">
@@ -599,13 +597,15 @@
                                         <span class="inline-block bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-1">${grade} · ${sem}</span>
                                         <div class="text-base font-black text-slate-900">${exam}</div>
                                     </div>
-                                    <div class="text-right">
-                                        ${ranksStr ? `<div class="text-sm font-black text-slate-800 bg-slate-200/70 border border-slate-300/80 rounded-lg px-2.5 py-1 shadow-2xs">${ranksStr}</div>` : '<div class="text-xs text-slate-400">無排名資料</div>'}
+                                    <div class="text-right font-black text-sm text-blue-600 leading-tight">
+                                        ${classRankVal ? `<div>${classRankVal}</div>` : ''}
+                                        ${schoolRankVal ? `<div>${schoolRankVal}</div>` : ''}
+                                        ${!classRankVal && !schoolRankVal ? '<span class="text-xs text-slate-400 font-normal">無排名資料</span>' : ''}
                                     </div>
                                 </div>
                                 <div class="pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-xs text-slate-600 font-semibold">
-                                    <div>加權總分：<span class="font-bold text-slate-900">${totalScore.toFixed(1)}</span> 分</div>
-                                    <div>加權平均：<span class="font-bold text-slate-900">${avg}</span></div>
+                                    <div>總分：<span class="font-bold text-slate-900">${totalScore.toFixed(1)}</span> 分</div>
+                                    <div>平均：<span class="font-bold text-slate-900">${avg}</span></div>
                                 </div>
                             `;
                         }
